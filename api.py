@@ -1,6 +1,7 @@
 # Class API - gives all connections via API interface
 
 import requests
+from requests.exceptions import HTTPError
 import json
 import logging
 import flask
@@ -12,20 +13,29 @@ from threading import Thread
 #import webview
 
 
-debug = True
+debug = False
+
+log = logging.getLogger("werkzeug")
+log.setLevel(logging.INFO)
 
 class API():
     def __init__(self, host, port):
-        self.url = f"{host}:{port}"
-    
-    def __debug(self, request, method):
-        print(f"{method} retrieved json:")
-        print(request.text)
+        self.url = f"{host}:{port}"     
         
     def __get(self, method, endpoint):
-        r = requests.get(f"{self.url}/{endpoint}")
-        if debug: self.__debug(r,method)
-        return r
+        
+        try:
+            log.debug(f"GET request for {method}")
+            r = requests.get(f"{self.url}/{endpoint}")
+            # Write out debug if enabled
+            log.debug(f"SUCCESS!! - {method} retrieved json - code {r.status_code}")
+            r.json()
+            return r.json()
+        
+        except HTTPError as http_err:
+            log.error(f"HTTP error occurred:\nerror:{http_err}-- Endpoint:{endpoint} ")
+        except Exception as err:
+            log.error(f"Error occurred:\nerror:{err} -- Endpoint:{endpoint} ")
     
     def getTrainer(self):
         return self.__get("getTrainer","/trainer")
@@ -48,30 +58,16 @@ class API():
     def getStats(self):
         return self.__get("getStats","/stats")
     
-def test_all():
-    api = API("http://localhost",8888)
-    api.getTrainer()
-    api.getBag()
-    api.getParty()
-    api.getEncounterLog()
-    api.getShinyLog()
-    api.getEncounterRate()
-    api.getStats()
     
-#test_all()
-
 pokedexList = json.loads(ReadFile("./modules/data/pokedex.json"))
 
 api = API("http://localhost",8888)
 
-def httpServer(api):
+def httpServer(api : API):
     """Run Flask server to make bot data available via HTTP GET"""
     
-
-    
     try:
-        log = logging.getLogger("werkzeug")
-        log.setLevel(logging.ERROR)
+
 
         server = Flask(__name__,static_folder="./interface")
         CORS(server)
@@ -96,12 +92,12 @@ def httpServer(api):
         def Trainer():
             trainer = api.getTrainer()
             if trainer:
-                return jsonify(trainer)
+                return trainer
             abort(503)
 
-        @server.route("/bag", methods=["GET"])
-        def Bag():
-            bag = api.getBag()
+        @server.route("/items", methods=["GET"])
+        def Items():
+            bag = api.getItems()
             if bag:
                 return jsonify(bag)
             abort(503)
@@ -115,32 +111,26 @@ def httpServer(api):
 
         @server.route("/encounter", methods=["GET"])
         def Encounter():
-            encounter_logs = api.getEncounterLog().json["encounter_log"]
-            if len(encounter_logs) > 0 and encounter_logs[-1]["pokemon_obj"]:
-                encounter = encounter_logs.pop()["pokemon_obj"]
-                stats = api.getStats()
-                if stats:
-                    try:
-                        encounter["stats"] = stats["pokemon"][encounter["name"]]
-                        return jsonify(encounter)
-                    except:
-                        abort(503)
-                return jsonify(encounter)
-            abort(503)
-
+            encounter_logs = api.getEncounterLog()
+            encounter = encounter_logs[0]
+            encounter = encounter["pokemon"]
+            log.info(f"first - {encounter_logs[0]['pokemon']['pid']} last -- {encounter_logs[-1]['pokemon']['pid']} ")
+            log.info(f"retrieved pokemon -- {encounter['name']}")
+            stats = api.getStats()
+            if stats:
+                try:
+                    encounter["stats"] = stats["pokemon"][encounter["name"]]
+                    return encounter
+                except:
+                    abort(503)
+            return encounter
+                
         @server.route("/encounter_rate", methods=["GET"])
         def EncounterRate():
             try:
                 return jsonify({"encounter_rate": api.getEncounterRate()})
             except:
                 return jsonify({"encounter_rate": "-"})
-            abort(503)
-
-        @server.route("/emu", methods=["GET"])
-        def Emu():
-            emu = api.getEmu()
-            if emu:
-                return jsonify(emu)
             abort(503)
 
         @server.route("/stats", methods=["GET"])
@@ -161,24 +151,11 @@ def httpServer(api):
                 return jsonify(shiny_log)
             abort(503)
 
-        # TODO Missing route_list
-        # @server.route("/routes", methods=["GET"])
-        # def Routes():
-        #     if route_list:
-        #         return route_list
-        #     else:
-        #         abort(503)
-
         @server.route("/pokedex", methods=["GET"])
         def Pokedex():
             if pokedexList:
                 return pokedexList
             abort(503)
-
-        # @server.route("/config", methods=["POST"])
-        # def Config():
-        #    response = jsonify({})
-        #    return response
 
         @server.route("/updateblocklist", methods=["POST"])
         def UpdateBlockList():
@@ -197,12 +174,10 @@ def httpServer(api):
             block_list = GetBlockList()
             return block_list
 
-        server.run(debug=False, threaded=True, host="localhost", port=8889)
+        server.run(debug=True, threaded=True, host="localhost", port=8889)
     except Exception as e:
         log.debug(str(e))
 
-Thread(target=httpServer(api)).start()
+httpServer(api)
 
-url = f"http://localhost:8889/dashboard"
-#window = webview.create_window("PokeBot", url=url, width=700, height=600,text_select=True, zoomable=True)
-#webview.start()
+# http://localhost:8889/dashboard"

@@ -1,4 +1,4 @@
-host = window.location.protocol + "//" + window.location.host;
+host = "http://localhost:8888";
 
 var blocked = { block_list: [] };
 function getBlocked() {
@@ -247,20 +247,6 @@ function stats() {
   });
 }
 
-// get info from emulator for game / fps
-function emu() {
-  $.ajax({
-    method: "GET",
-    url: host + "/emu",
-    crossDomain: true,
-    dataType: "json",
-    format: "json",
-    timeout: 2500,
-  }).done(function (emu) {
-    $("#nav_emu").text(emu["detectedGame"] + " | " + emu["fps"] + "fps");
-  });
-}
-
 // encounter log for encounters/hr
 function encounter_log() {
   $.ajax({
@@ -289,7 +275,6 @@ function encounter_log() {
 window.setInterval(function () {
   encounter_log();
   stats();
-  emu();
 }, 2500);
 
 window.setInterval(function () {

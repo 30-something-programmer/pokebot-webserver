@@ -1,5 +1,6 @@
-host = window.location.protocol + "//" + window.location.host
-
+// host = window.location.protocol + "//" + window.location.host
+host = "http://localhost:8888";
+host2 = "http://localhost:8889";
 function trainer() {
     $.ajax({
         method: "GET",
@@ -12,58 +13,58 @@ function trainer() {
         $("#trainer_id").text(trainer["tid"]);
         $("#trainer_secret").text(trainer["sid"]);
         $("#trainer_map_bank_id").text(
-            trainer["mapBank"] + ":" + trainer["mapId"]
+            trainer["map"][0] + ":" + trainer["map"][1]
         );
         $("#trainer_coords").text(
-            "X " + trainer["posX"] + ", Y " + trainer["posY"]
+            "X " + trainer["coords"][0] + ", Y " + trainer["map"][1]
         );
-        $("#trainer_state").text(trainer["state"]);
+        $("#trainer_state").text(trainer["facing"]);
     });
 }
 
-function bag() {
+function items() {
     $.ajax({
         method: "GET",
-        url: host + "/bag",
+        url: host + "/items",
         crossDomain: true,
         dataType: "json",
         format: "json",
         timeout: 500,
-    }).done(function(bag) {
+    }).done(function(items) {
         let tr = ""
 
-        let wrapper = document.getElementById("bag_log")
+        let wrapper = document.getElementById("items_log")
 
-        let condensedBag = []
-        Object.entries(bag).forEach(([key, value]) => {
+        let condenseditems = []
+        Object.entries(items).forEach(([key, value]) => {
             for (let j = 0; j < value.length; j++) {
                 if (value[j]["name"] == "None" || value[j]["name"] == "unknown") continue
 
-                if (!condensedBag[key]) {
-                        condensedBag[key] = []
+                if (!condensedItems[key]) {
+                        condensedItems[key] = []
                 }
                 
-                if (condensedBag[key][value[j]["name"]]) {
-                    condensedBag[key][value[j]["name"]] += value[j]["quantity"]
+                if (condensedItem[key][value[j]["name"]]) {
+                    condensedItems[key][value[j]["name"]] += value[j]["quantity"]
                 }
                 else {
-                    condensedBag[key][value[j]["name"]] = value[j]["quantity"]
+                    condensedItems[key][value[j]["name"]] = value[j]["quantity"]
                 }
             }
 
         })
         
-        Object.entries(condensedBag).forEach(([key, value]) => {
-            for (keyItem in value) {
+        Object.entries(condensedItems).forEach(([key, value]) => {
+            for (keyItems in value) {
                     tr +=
-                        '<tr><td class="text-center"><img class="sprite32" src="/interface/sprites/items/' +
-                        keyItem +
+                        '<tr><td class="text-center"><img class="sprite32" src="/interface/sprites/Items/' +
+                        keyItems +
                         '.png"></td><td class="text-center">' +
-                        keyItem +
+                        keyItems +
                         '</td></td><td class="text-center">' +
                         key +
                         '</td><td class="text-center">' +
-                        value[keyItem]   +
+                        value[keyItems]   +
                         "</td></tr>"           
             }
         })
@@ -79,7 +80,7 @@ function get_type_image(type_str) {
 function encounter() {
     $.ajax({
         method: "GET",
-        url: host + "/encounter",
+        url: host2 + "/encounter",
         crossDomain: true,
         dataType: "json",
         format: "json",
@@ -88,7 +89,7 @@ function encounter() {
         $(".opponent_name").text(encounter["name"]);
         $("#health-bar-fill").css(
             "width",
-            (encounter["hp"] / encounter["maxHP"]) * 100 + "%"
+            (encounter["stats"]["hp"] / encounter["stats"]["maxHP"]) * 100 + "%"
         );
 
         if (encounter["shiny"]) {
@@ -114,60 +115,60 @@ function encounter() {
             encounter["shinyValue"].toLocaleString()
         );
         $("#opponent_hidden_power_type").html(
-            get_type_image(encounter["hiddenPowerType"])
+            get_type_image(encounter["hiddenPower"])
         );
-        $("#opponent_personality").text(encounter["personality"]);
-        $("#opponent_hp").text(encounter["hp"].toLocaleString());
-        $("#opponent_hp_iv").text(encounter["hpIV"]);
-        $("#opponent_attack").text(encounter["attack"].toLocaleString());
-        $("#opponent_attack_iv").text(encounter["attackIV"]);
-        $("#opponent_defense").text(encounter["defense"].toLocaleString());
-        $("#opponent_defense_iv").text(encounter["defenseIV"]);
-        $("#opponent_spattack").text(encounter["spAttack"].toLocaleString());
-        $("#opponent_spattack_iv").text(encounter["spAttackIV"]);
-        $("#opponent_spdef").text(encounter["spDefense"].toLocaleString());
-        $("#opponent_spdef_iv").text(encounter["spDefenseIV"]);
-        $("#opponent_speed").text(encounter["speed"].toLocaleString());
-        $("#opponent_speed_iv").text(encounter["speedIV"]);
+        $("#opponent_personality").text(encounter["nature"]);
+        $("#opponent_hp").text(encounter["stats"]["hp"].toLocaleString());
+        $("#opponent_hp_iv").text(encounter["IVs"]["hp"]);
+        $("#opponent_attack").text(encounter["stats"]["attack"].toLocaleString());
+        $("#opponent_attack_iv").text(encounter["IVs"]["attack"]);
+        $("#opponent_defense").text(encounter["stats"]["defense"].toLocaleString());
+        $("#opponent_defense_iv").text(encounter["IVs"]["defense"]);
+        $("#opponent_spattack").text(encounter["stats"]["spAttack"].toLocaleString());
+        $("#opponent_spattack_iv").text(encounter["stats"]["IVs"]["spAttack"]);
+        $("#opponent_spdef").text(encounter["stats"]["spDefense"].toLocaleString());
+        $("#opponent_spdef_iv").text(encounter["IVs"]["spDefense"]);
+        $("#opponent_speed").text(encounter["stats"]["speed"].toLocaleString());
+        $("#opponent_speed_iv").text(encounter["IVs"]["speed"]);
 
-        if (encounter["hpIV"] <= 15) {
+        if (encounter["IVs"]["hp"] <= 15) {
             $("#opponent_hp_iv").css("color", "red");
-        } else if (encounter["hpIV"] <= 30) {
+        } else if (encounter["IVs"]["hp"] <= 30) {
             $("#opponent_hp_iv").css("color", "green");
         } else {
             $("#opponent_hp_iv").css("color", "gold");
         }
-        if (encounter["attackIV"] <= 15) {
+        if (encounter["IVs"]["attack"] <= 15) {
             $("#opponent_attack_iv").css("color", "red");
-        } else if (encounter["attackIV"] <= 30) {
+        } else if (encounter["IVs"]["attack"] <= 30) {
             $("#opponent_attack_iv").css("color", "green");
         } else {
             $("#opponent_attack_iv").css("color", "gold");
         }
-        if (encounter["defenseIV"] <= 15) {
+        if (encounter["IVs"]["defense"] <= 15) {
             $("#opponent_defense_iv").css("color", "red");
-        } else if (encounter["defenseIV"] <= 30) {
+        } else if (encounter["IVs"]["defense"] <= 30) {
             $("#opponent_defense_iv").css("color", "green");
         } else {
             $("#opponent_defense_iv").css("color", "gold");
         }
-        if (encounter["spAttackIV"] <= 15) {
+        if (encounter["IVs"]["spAttack"] <= 15) {
             $("#opponent_spattack_iv").css("color", "red");
-        } else if (encounter["spAttackIV"] <= 30) {
+        } else if (encounter["IVs"]["spAttack"] <= 30) {
             $("#opponent_spattack_iv").css("color", "green");
         } else {
             $("#opponent_spattack_iv").css("color", "gold");
         }
-        if (encounter["spDefenseIV"] <= 15) {
+        if (encounter["IVs"]["spDefense"] <= 15) {
             $("#opponent_spdef_iv").css("color", "red");
-        } else if (encounter["spDefenseIV"] <= 30) {
+        } else if (encounter["IVs"]["spDefense"] <= 30) {
             $("#opponent_spdef_iv").css("color", "green");
         } else {
             $("#opponent_spdef_iv").css("color", "gold");
         }
-        if (encounter["speedIV"] <= 15) {
+        if (encounter["IVs"]["speed"] <= 15) {
             $("#opponent_speed_iv").css("color", "red");
-        } else if (encounter["speedIV"] <= 30) {
+        } else if (encounter["IVs"]["speed"] <= 30) {
             $("#opponent_speed_iv").css("color", "green");
         } else {
             $("#opponent_speed_iv").css("color", "gold");
@@ -175,20 +176,20 @@ function encounter() {
 
         $("#opponent_level").text(encounter["level"]);
         $("#opponent_nature").text(encounter["nature"]);
-        $("#opponent_location").text(encounter["metLocationName"]);
-        $("#opponent_item").text(encounter["itemName"]);
+        $("#opponent_location").text(encounter["metLocation"]);
+        $("#opponent_items").text(encounter["item"]);
         $("#opponent_item_image").attr(
             "src",
-            "/interface/sprites/items/" + encounter["itemName"] + ".png"
+            "/interface/sprites/items/" + encounter["item"] + ".png"
         );
 
-        encounter["type"] = encounter["type"].filter((e) => e !== "Fairy");
+        encounter["type"][0] = encounter["type"][0].filter((e) => e !== "Fairy");
         var types = "";
-        var arrayLength = encounter["type"].length;
+        var arrayLength = encounter["type"][0].length;
         for (var o = 0; o < arrayLength; o++) {
             types +=
-                get_type_image(encounter["type"][o]) +
-                String(encounter["type"][o] != 0 && arrayLength != 1 ? "" : " ");
+                get_type_image(encounter["type"][0][o]) +
+                String(encounter["type"][0][o] != 0 && arrayLength != 1 ? "" : " ");
         }
 
         $("#opponent_type").html(types);
@@ -251,13 +252,11 @@ function encounter_log() {
     }).done(function(encounter_log) {
         var tr = "";
 
-        var wrapper = document.getElementById("encounter_log");
-
-        reverse_encounter_log = encounter_log["encounter_log"].reverse();
+        reverse_encounter_log = encounter_log[0].reverse();
 
         for (var i = 0; i < 25; i++) {
             if (reverse_encounter_log[i]) {
-                if (reverse_encounter_log[i]["pokemon_obj"]["shiny"]) {
+                if (reverse_encounter_log[i]["pokemon"]["shiny"]) {
                     sprite_dir = "shiny/";
                     sv_colour = "gold";
                 } else {
@@ -268,23 +267,23 @@ function encounter_log() {
                 tr +=
                     '<tr><td><img class="sprite32" src="/interface/sprites/pokemon/' +
                     sprite_dir +
-                    reverse_encounter_log[i]["pokemon_obj"]["name"] +
+                    reverse_encounter_log[i]["pokemon"]["name"] +
                     '.png"></td><td class="text-center">' +
-                    reverse_encounter_log[i]["pokemon_obj"]["name"] +
+                    reverse_encounter_log[i]["pokemon"]["name"] +
                     '</td><td class="text-center">' +
-                    reverse_encounter_log[i]["pokemon_obj"]["level"] +
+                    reverse_encounter_log[i]["pokemon"]["level"] +
                     '</td><td class="text-center">' +
-                    reverse_encounter_log[i]["pokemon_obj"]["nature"] +
+                    reverse_encounter_log[i]["pokemon"]["nature"] +
                     '</td><td class="text-center"><img title="' +
-                    reverse_encounter_log[i]["pokemon_obj"]["itemName"] +
+                    reverse_encounter_log[i]["pokemon"]["itemName"] +
                     '" class="sprite16" src="/interface/sprites/items/' +
-                    reverse_encounter_log[i]["pokemon_obj"]["itemName"] +
+                    reverse_encounter_log[i]["pokemon"]["itemName"] +
                     '.png"></td><td class="text-center"><code class="code">' +
-                    reverse_encounter_log[i]["pokemon_obj"]["personality"] +
+                    reverse_encounter_log[i]["pokemon"]["personality"] +
                     '</code></td><td class="text-center" style="color:' +
                     sv_colour +
                     ';">' +
-                    reverse_encounter_log[i]["pokemon_obj"][
+                    reverse_encounter_log[i]["pokemon"][
                         "shinyValue"
                     ].toLocaleString() +
                     "</td></tr>";
@@ -311,7 +310,7 @@ function shiny_log() {
 
         for (var i = 0; i < 25; i++) {
             if (reverse_shiny_log[i]) {
-                if (reverse_shiny_log[i]["pokemon_obj"]["shiny"]) {
+                if (reverse_shiny_log[i]["pokemon"]["shiny"]) {
                     sprite_dir = "shiny/";
                     sv_colour = "gold";
                 } else {
@@ -321,23 +320,23 @@ function shiny_log() {
                 tr +=
                     '<tr><td><img class="sprite32" src="/interface/sprites/pokemon/' +
                     sprite_dir +
-                    reverse_shiny_log[i]["pokemon_obj"]["name"] +
+                    reverse_shiny_log[i]["pokemon"]["name"] +
                     '.png"></td><td class="text-center">' +
-                    reverse_shiny_log[i]["pokemon_obj"]["name"] +
+                    reverse_shiny_log[i]["pokemon"]["name"] +
                     '</td><td class="text-center">' +
-                    reverse_shiny_log[i]["pokemon_obj"]["level"] +
+                    reverse_shiny_log[i]["pokemon"]["level"] +
                     '</td><td class="text-center">' +
-                    reverse_shiny_log[i]["pokemon_obj"]["nature"] +
+                    reverse_shiny_log[i]["pokemon"]["nature"] +
                     '</td><td class="text-center"><img title="' +
-                    reverse_shiny_log[i]["pokemon_obj"]["itemName"] +
+                    reverse_shiny_log[i]["pokemon"]["itemName"] +
                     '" class="sprite16" src="/interface/sprites/items/' +
-                    reverse_shiny_log[i]["pokemon_obj"]["itemName"] +
+                    reverse_shiny_log[i]["pokemon"]["itemName"] +
                     '.png"></td><td class="text-center"><code class="code">' +
-                    reverse_shiny_log[i]["pokemon_obj"]["personality"] +
+                    reverse_shiny_log[i]["pokemon"]["personality"] +
                     '</code></td><td class="text-center" style="color:' +
                     sv_colour +
                     ';">' +
-                    reverse_shiny_log[i]["pokemon_obj"]["shinyValue"].toLocaleString() +
+                    reverse_shiny_log[i]["pokemon"]["shinyValue"].toLocaleString() +
                     "</td></tr>";
             }
         }
@@ -408,11 +407,11 @@ window.setInterval(function() {
 }, 1000);
 
 window.setInterval(function() {
-    bag();
+    items();
 }, 2500);
 
 shiny_log();
 encounter_log();
 trainer();
 encounter();
-bag();
+items();

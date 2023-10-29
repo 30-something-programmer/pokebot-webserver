@@ -1,4 +1,4 @@
-host = window.location.protocol + "//" + window.location.host
+host = "http://localhost:8888";
 
 function header_stats() {
     $.ajax({
@@ -17,22 +17,6 @@ function header_stats() {
         stats["totals"]["shiny_encounters"] = (stats["totals"]["shiny_encounters"] === undefined) ? 0 : stats["totals"]["shiny_encounters"];
         $("#nav_stat_shiny").text(
             stats["totals"]["shiny_encounters"].toLocaleString()
-        );
-    });
-}
-
-// get info from emulator for game / fps
-function header_emu() {
-    $.ajax({
-        method: "GET",
-        url: host + "/emu",
-        crossDomain: true,
-        dataType: "json",
-        format: "json",
-        timeout: 2500,
-    }).done(function(emu) {
-        $("#nav_emu").text(
-            emu["detectedGame"] + " | " + emu["fps"] + "fps"
         );
     });
 }
@@ -56,8 +40,6 @@ function header_encounter_rate() {
 window.setInterval(function() {
     header_encounter_rate();
     header_stats();
-    header_emu();
 }, 2500);
 header_encounter_rate();
 header_stats();
-header_emu();
