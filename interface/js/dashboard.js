@@ -16,7 +16,7 @@ function trainer() {
             trainer["map"][0] + ":" + trainer["map"][1]
         );
         $("#trainer_coords").text(
-            "X " + trainer["coords"][0] + ", Y " + trainer["map"][1]
+            "X " + trainer["coords"][0] + ", Y " + trainer["coords"][1]
         );
         $("#trainer_state").text(trainer["facing"]);
     });
@@ -117,8 +117,10 @@ function encounter() {
         $("#opponent_hidden_power_type").html(
             get_type_image(encounter["hiddenPower"])
         );
-        $("#opponent_personality").text(encounter["nature"]);
-        $("#opponent_hp").text(encounter["stats"]["hp"].toLocaleString());
+        //$("#opponent_personality").text(encounter["nature"]);
+        $("#opponent_personality").text("test");
+        //$("#opponent_hp").text(encounter["stats"]["hp"].toLocaleString());
+        $("#opponent_hp").text(10);
         $("#opponent_hp_iv").text(encounter["IVs"]["hp"]);
         $("#opponent_attack").text(encounter["stats"]["attack"].toLocaleString());
         $("#opponent_attack_iv").text(encounter["IVs"]["attack"]);
@@ -246,51 +248,43 @@ function encounter_log() {
         method: "GET",
         url: host + "/encounter_log",
         crossDomain: true,
+
         dataType: "json",
         format: "json",
         timeout: 2500,
     }).done(function(encounter_log) {
         var tr = "";
 
-        reverse_encounter_log = encounter_log[0].reverse();
-
-        for (var i = 0; i < 25; i++) {
-            if (reverse_encounter_log[i]) {
+        reverse_encounter_log = encounter_log.reverse();
+        
+        for (var i = 0; i < 11; i++) {
+            if (reverse_encounter_log[i]["pokemon"]) {
                 if (reverse_encounter_log[i]["pokemon"]["shiny"]) {
                     sprite_dir = "shiny/";
                     sv_colour = "gold";
+                    
                 } else {
                     sprite_dir = "";
                     sv_colour = "red";
+                    
                 }
 
                 tr +=
-                    '<tr><td><img class="sprite32" src="/interface/sprites/pokemon/' +
+                    '<p id="encounter_log"><tr><td><img class="sprite32" src="/interface/sprites/pokemon/' +
                     sprite_dir +
-                    reverse_encounter_log[i]["pokemon"]["name"] +
-                    '.png"></td><td class="text-center">' +
-                    reverse_encounter_log[i]["pokemon"]["name"] +
-                    '</td><td class="text-center">' +
-                    reverse_encounter_log[i]["pokemon"]["level"] +
-                    '</td><td class="text-center">' +
-                    reverse_encounter_log[i]["pokemon"]["nature"] +
-                    '</td><td class="text-center"><img title="' +
-                    reverse_encounter_log[i]["pokemon"]["itemName"] +
-                    '" class="sprite16" src="/interface/sprites/items/' +
-                    reverse_encounter_log[i]["pokemon"]["itemName"] +
-                    '.png"></td><td class="text-center"><code class="code">' +
-                    reverse_encounter_log[i]["pokemon"]["personality"] +
-                    '</code></td><td class="text-center" style="color:' +
-                    sv_colour +
-                    ';">' +
-                    reverse_encounter_log[i]["pokemon"][
-                        "shinyValue"
-                    ].toLocaleString() +
-                    "</td></tr>";
+                    reverse_encounter_log[i]["pokemon"]["name"] + '.png"></td><td class="text-center">' +
+                    reverse_encounter_log[i]["pokemon"]["name"] + '</td><td class="text-center">' +
+                    reverse_encounter_log[i]["pokemon"]["level"] + '</td><td class="text-center">' +
+                    reverse_encounter_log[i]["pokemon"]["nature"] + '</td><td class="text-center"><img title="' +
+                    reverse_encounter_log[i]["pokemon"]["item"]["name"] + '" class="sprite16" src="/interface/sprites/items/' +
+                    reverse_encounter_log[i]["pokemon"]["item"]["name"] + '.png"></td><td class="text-center"><code class="code">' +
+                    reverse_encounter_log[i]["pokemon"]["pid"] + '</code></td><td class="text-center" style="color:' +
+                    sv_colour +';">' +
+                    reverse_encounter_log[i]["pokemon"]["shinyValue"].toLocaleString() +
+                    "</td></tr></p>";
             }
-        }
-
-        wrapper.innerHTML = tr;
+            document.getElementById("encounter_log").innerHTML = tr;
+        }      
     });
 }
 

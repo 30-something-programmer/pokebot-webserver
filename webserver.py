@@ -112,15 +112,12 @@ def httpServer(api : API):
         @server.route("/encounter", methods=["GET"])
         def Encounter():
             encounter_logs = api.getEncounterLog()
-            encounter = encounter_logs[0]
-            encounter = encounter["pokemon"]
-            log.info(f"first - {encounter_logs[0]['pokemon']['pid']} last -- {encounter_logs[-1]['pokemon']['pid']} ")
-            log.info(f"retrieved pokemon -- {encounter['name']}")
+            encounter = encounter_logs[-1]["pokemon"]
             stats = api.getStats()
             if stats:
                 try:
-                    encounter["stats"] = stats["pokemon"][encounter["name"]]
-                    return encounter
+                    encounter["global_stats"] = stats["pokemon"][encounter["name"]]
+                    return jsonify(encounter)
                 except:
                     abort(503)
             return encounter
