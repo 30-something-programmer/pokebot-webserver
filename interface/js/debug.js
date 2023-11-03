@@ -1,4 +1,5 @@
-host = window.location.protocol + "//" + window.location.host
+host = "http://localhost:8888";
+host2 = "http://localhost:8889";
 
 function trainer() {
     $.ajax({
@@ -16,11 +17,11 @@ function trainer() {
 function encounter() {
     $.ajax({
         method: "GET",
-        url: host + "/encounter",
+        url: host2 + "/encounter",
         crossDomain: true,
         dataType: "json",
         format: "json",
-        timeout: 1000,
+        timeout: 50000,
     }).done(function(encounter) {
         document.getElementById("encounter").innerHTML = JSONTree.create(encounter)
     });

@@ -1,6 +1,6 @@
-// host = window.location.protocol + "//" + window.location.host
 host = "http://localhost:8888";
 host2 = "http://localhost:8889";
+window.encounter = null;    // Host the encounter as a global variable
 function trainer() {
     $.ajax({
         method: "GET",
@@ -77,173 +77,174 @@ function get_type_image(type_str) {
     return `<img src=\"/interface/sprites/types/${type_str}.png\">`;
 }
 
-function encounter() {
-    $.ajax({
-        method: "GET",
-        url: host2 + "/encounter",
-        crossDomain: true,
-        dataType: "json",
-        format: "json",
-        timeout: 1000,
-    }).done(function(encounter) {
-        $(".opponent_name").text(encounter["name"]);
-        $("#health-bar-fill").css(
-            "width",
-            (encounter["stats"]["hp"] / encounter["stats"]["maxHP"]) * 100 + "%"
-        );
+function current_encounter() {
+    
+    // Update the Current encounter details
+    $(".opponent_name").text(window.encounter["name"]);
+    $("#health-bar-fill").css(
+        "width",
+        (window.encounter["stats"]["hp"] / window.encounter["stats"]["maxHP"]) * 100 + "%"
+    );
 
-        if (encounter["shiny"]) {
-            $("#opponent_name").css("color", "gold");
-            $("#opponent_shiny").text("Yes!");
+    if (window.encounter["shiny"]) {
+        $("#opponent_name").css("color", "gold");
+        $("#opponent_shiny").text("Yes!");
+        // If the pokemon hasn't changed, don't redraw the gif
+        if ($("#opponent_personality").text() != window.encounter["pid"]){
             $("#opponent_sprite").attr(
                 "src",
-                "/interface/sprites/pokemon/shiny/" + encounter["name"] + ".png"
+                "https://img.pokemondb.net/sprites/black-white/anim/shiny/" + window.encounter["name"].toLowerCase() + ".gif"
             );
-            $("#opponent_shiny").css("color", "gold");
-            $("#opponent_shiny_value").css("color", "gold");
-        } else {
-            $("#opponent_shiny").text("No");
+        }
+        $("#opponent_shiny").css("color", "gold");
+        $("#opponent_shiny_value").css("color", "gold");
+    } else {
+        $("#opponent_shiny").text("No");
+
+        // If the pokemon hasn't changed, don't redraw the gif
+        if ($("#opponent_personality").text() != window.encounter["pid"]){
             $("#opponent_sprite").attr(
                 "src",
-                "/interface/sprites/pokemon/" + encounter["name"] + ".png"
+                "https://img.pokemondb.net/sprites/black-white/anim/normal/" + window.encounter["name"].toLowerCase() + ".gif"
             );
-            $("#opponent_shiny").css("color", "red");
-            $("#opponent_shiny_value").css("color", "red");
-            $("#opponent_name").css("color", "");
         }
-        $("#opponent_shiny_value").text(
-            encounter["shinyValue"].toLocaleString()
-        );
-        $("#opponent_hidden_power_type").html(
-            get_type_image(encounter["hiddenPower"])
-        );
-        //$("#opponent_personality").text(encounter["nature"]);
-        $("#opponent_personality").text("test");
-        //$("#opponent_hp").text(encounter["stats"]["hp"].toLocaleString());
-        $("#opponent_hp").text(10);
-        $("#opponent_hp_iv").text(encounter["IVs"]["hp"]);
-        $("#opponent_attack").text(encounter["stats"]["attack"].toLocaleString());
-        $("#opponent_attack_iv").text(encounter["IVs"]["attack"]);
-        $("#opponent_defense").text(encounter["stats"]["defense"].toLocaleString());
-        $("#opponent_defense_iv").text(encounter["IVs"]["defense"]);
-        $("#opponent_spattack").text(encounter["stats"]["spAttack"].toLocaleString());
-        $("#opponent_spattack_iv").text(encounter["stats"]["IVs"]["spAttack"]);
-        $("#opponent_spdef").text(encounter["stats"]["spDefense"].toLocaleString());
-        $("#opponent_spdef_iv").text(encounter["IVs"]["spDefense"]);
-        $("#opponent_speed").text(encounter["stats"]["speed"].toLocaleString());
-        $("#opponent_speed_iv").text(encounter["IVs"]["speed"]);
+        $("#opponent_shiny").css("color", "red");
+        $("#opponent_shiny_value").css("color", "red");
+        $("#opponent_name").css("color", "");
+    }
+    
+    $("#opponent_shiny_value").text(
+        window.encounter["shinyValue"].toLocaleString()
+    );
+    $("#opponent_hidden_power_type").html(
+        get_type_image(window.encounter["hiddenPower"])
+    );
+    $("#opponent_personality").text(window.encounter["pid"]);
+    $("#opponent_hp").text(window.encounter["stats"]["hp"].toLocaleString());
+    $("#opponent_hp_iv").text(window.encounter["IVs"]["hp"].toLocaleString());
+    $("#opponent_attack").text(window.encounter["stats"]["attack"].toLocaleString());
+    $("#opponent_attack_iv").text(window.encounter["IVs"]["attack"].toLocaleString());
+    $("#opponent_defense").text(window.encounter["stats"]["defense"].toLocaleString());
+    $("#opponent_defense_iv").text(window.encounter["IVs"]["defense"].toLocaleString());
+    $("#opponent_spattack").text(window.encounter["stats"]["spAttack"].toLocaleString());
+    $("#opponent_spattack_iv").text(window.encounter["IVs"]["spAttack"].toLocaleString());
+    $("#opponent_spdef").text(window.encounter["stats"]["spDefense"].toLocaleString());
+    $("#opponent_spdef_iv").text(window.encounter["IVs"]["spDefense"].toLocaleString());
+    $("#opponent_speed").text(window.encounter["stats"]["speed"].toLocaleString());
+    $("#opponent_speed_iv").text(window.encounter["IVs"]["speed"].toLocaleString());
 
-        if (encounter["IVs"]["hp"] <= 15) {
-            $("#opponent_hp_iv").css("color", "red");
-        } else if (encounter["IVs"]["hp"] <= 30) {
-            $("#opponent_hp_iv").css("color", "green");
+    if (window.encounter["IVs"]["hp"] <= 15) {
+        $("#opponent_hp_iv").css("color", "red");
+    } else if (window.encounter["IVs"]["hp"] <= 30) {
+        $("#opponent_hp_iv").css("color", "green");
+    } else {
+        $("#opponent_hp_iv").css("color", "gold");
+    }
+    if (window.encounter["IVs"]["attack"] <= 15) {
+        $("#opponent_attack_iv").css("color", "red");
+    } else if (window.encounter["IVs"]["attack"] <= 30) {
+        $("#opponent_attack_iv").css("color", "green");
+    } else {
+        $("#opponent_attack_iv").css("color", "gold");
+    }
+    if (window.encounter["IVs"]["defense"] <= 15) {
+        $("#opponent_defense_iv").css("color", "red");
+    } else if (window.encounter["IVs"]["defense"] <= 30) {
+        $("#opponent_defense_iv").css("color", "green");
+    } else {
+        $("#opponent_defense_iv").css("color", "gold");
+    }
+    if (window.encounter["IVs"]["spAttack"] <= 15) {
+        $("#opponent_spattack_iv").css("color", "red");
+    } else if (window.encounter["IVs"]["spAttack"] <= 30) {
+        $("#opponent_spattack_iv").css("color", "green");
+    } else {
+        $("#opponent_spattack_iv").css("color", "gold");
+    }
+    if (window.encounter["IVs"]["spDefense"] <= 15) {
+        $("#opponent_spdef_iv").css("color", "red");
+    } else if (window.encounter["IVs"]["spDefense"] <= 30) {
+        $("#opponent_spdef_iv").css("color", "green");
+    } else {
+        $("#opponent_spdef_iv").css("color", "gold");
+    }
+    if (window.encounter["IVs"]["speed"] <= 15) {
+        $("#opponent_speed_iv").css("color", "red");
+    } else if (window.encounter["IVs"]["speed"] <= 30) {
+        $("#opponent_speed_iv").css("color", "green");
+    } else {
+        $("#opponent_speed_iv").css("color", "gold");
+    }
+
+    $("#opponent_level").text(window.encounter["level"]);
+    $("#opponent_nature").text(window.encounter["nature"]);
+    $("#opponent_location").text(window.encounter["metLocation"]);
+    $("#opponent_item").text(window.encounter["item"]["name"]);
+    $("#opponent_item_image").attr(
+        "src",
+        "/interface/sprites/items/" + window.encounter["item"]["name"] + ".png"
+    );
+
+    window.encounter["type"] = window.encounter["type"].filter((e) => e !== "Fairy");
+    var types = "";
+    types += get_type_image(window.encounter["type"][0])
+    if (window.encounter["type"][1] != ""){
+        types += get_type_image(window.encounter["type"][1])
+    }
+
+    $("#opponent_type").html(types);
+
+    encounter["global_stats"]["phase_encounters"] = (window.encounter["global_stats"]["phase_encounters"] === undefined) ? 0 : window.encounter["global_stats"]["phase_encounters"];
+    $("#opponent_phase_encounters").text(
+        window.encounter["global_stats"]["phase_encounters"].toLocaleString()
+    );
+
+    window.encounter["global_stats"]["encounters"] = (window.encounter["global_stats"]["encounters"] === undefined) ? 0 : window.encounter["global_stats"]["encounters"];
+    $("#opponent_encounters").text(
+        window.encounter["global_stats"]["encounters"].toLocaleString()
+    );
+    
+    window.encounter["global_stats"]["shiny_encounters"] = (window.encounter["global_stats"]["shiny_encounters"] === undefined) ? 0 : window.encounter["global_stats"]["shiny_encounters"];
+    $("#opponent_shiny_encounters").text(
+        window.encounter["global_stats"]["shiny_encounters"].toLocaleString()
+    );
+
+    window.encounter["global_stats"]["shiny_average"] = (window.encounter["global_stats"]["shiny_average"] === undefined) ? "-" : window.encounter["global_stats"]["shiny_average"];
+    $("#opponent_shiny_average").text(
+        window.encounter["global_stats"]["shiny_average"]
+    );
+    
+    window.encounter["global_stats"]["phase_lowest_sv"] = (window.encounter["global_stats"]["phase_lowest_sv"] === undefined) ? 65535 : window.encounter["global_stats"]["phase_lowest_sv"];
+    $("#opponent_phase_lowest_sv").text(
+        window.encounter["global_stats"]["phase_lowest_sv"].toLocaleString()
+    );
+
+    if (window.encounter["global_stats"]["phase_lowest_sv"] < 8) {
+        $("#opponent_phase_lowest_sv").css("color", "green");
+    } else {
+        $("#opponent_phase_lowest_sv").css("color", "red");
+    }
+
+    for (i of Array(4).keys()) {
+        if (window.encounter["moves"][i]["name"] != "None") {
+            $("#opponent_move_" + i).text(
+                window.encounter["moves"][i]["name"]
+            );
+            $("#opponent_move_pp_" + i).text(
+                window.encounter["moves"][i]["remaining_pp"] + "/" + window.encounter["moves"][i]["pp"]
+            );
         } else {
-            $("#opponent_hp_iv").css("color", "gold");
+            $("#opponent_move_" + i).text("-");
+            $("#opponent_move_pp_" + i).text("-");
         }
-        if (encounter["IVs"]["attack"] <= 15) {
-            $("#opponent_attack_iv").css("color", "red");
-        } else if (encounter["IVs"]["attack"] <= 30) {
-            $("#opponent_attack_iv").css("color", "green");
-        } else {
-            $("#opponent_attack_iv").css("color", "gold");
-        }
-        if (encounter["IVs"]["defense"] <= 15) {
-            $("#opponent_defense_iv").css("color", "red");
-        } else if (encounter["IVs"]["defense"] <= 30) {
-            $("#opponent_defense_iv").css("color", "green");
-        } else {
-            $("#opponent_defense_iv").css("color", "gold");
-        }
-        if (encounter["IVs"]["spAttack"] <= 15) {
-            $("#opponent_spattack_iv").css("color", "red");
-        } else if (encounter["IVs"]["spAttack"] <= 30) {
-            $("#opponent_spattack_iv").css("color", "green");
-        } else {
-            $("#opponent_spattack_iv").css("color", "gold");
-        }
-        if (encounter["IVs"]["spDefense"] <= 15) {
-            $("#opponent_spdef_iv").css("color", "red");
-        } else if (encounter["IVs"]["spDefense"] <= 30) {
-            $("#opponent_spdef_iv").css("color", "green");
-        } else {
-            $("#opponent_spdef_iv").css("color", "gold");
-        }
-        if (encounter["IVs"]["speed"] <= 15) {
-            $("#opponent_speed_iv").css("color", "red");
-        } else if (encounter["IVs"]["speed"] <= 30) {
-            $("#opponent_speed_iv").css("color", "green");
-        } else {
-            $("#opponent_speed_iv").css("color", "gold");
-        }
-
-        $("#opponent_level").text(encounter["level"]);
-        $("#opponent_nature").text(encounter["nature"]);
-        $("#opponent_location").text(encounter["metLocation"]);
-        $("#opponent_items").text(encounter["item"]);
-        $("#opponent_item_image").attr(
-            "src",
-            "/interface/sprites/items/" + encounter["item"] + ".png"
-        );
-
-        encounter["type"][0] = encounter["type"][0].filter((e) => e !== "Fairy");
-        var types = "";
-        var arrayLength = encounter["type"][0].length;
-        for (var o = 0; o < arrayLength; o++) {
-            types +=
-                get_type_image(encounter["type"][0][o]) +
-                String(encounter["type"][0][o] != 0 && arrayLength != 1 ? "" : " ");
-        }
-
-        $("#opponent_type").html(types);
-
-        encounter["stats"]["phase_encounters"] = (encounter["stats"]["phase_encounters"] === undefined) ? 0 : encounter["stats"]["phase_encounters"];
-        $("#opponent_phase_encounters").text(
-            encounter["stats"]["phase_encounters"].toLocaleString()
-        );
-
-        encounter["stats"]["encounters"] = (encounter["stats"]["encounters"] === undefined) ? 0 : encounter["stats"]["encounters"];
-        $("#opponent_encounters").text(
-            encounter["stats"]["encounters"].toLocaleString()
-        );
-
-        encounter["stats"]["shiny_encounters"] = (encounter["stats"]["shiny_encounters"] === undefined) ? 0 : encounter["stats"]["shiny_encounters"];
-        $("#opponent_shiny_encounters").text(
-            encounter["stats"]["shiny_encounters"].toLocaleString()
-        );
-
-        encounter["stats"]["shiny_average"] = (encounter["stats"]["shiny_average"] === undefined) ? "-" : encounter["stats"]["shiny_average"];
-        $("#opponent_shiny_average").text(
-            encounter["stats"]["shiny_average"]
-        );
-
-        encounter["stats"]["phase_lowest_sv"] = (encounter["stats"]["phase_lowest_sv"] === undefined) ? 65535 : encounter["stats"]["phase_lowest_sv"];
-        $("#opponent_phase_lowest_sv").text(
-            encounter["stats"]["phase_lowest_sv"].toLocaleString()
-        );
-
-        if (encounter["stats"]["phase_lowest_sv"] < 8) {
-            $("#opponent_phase_lowest_sv").css("color", "green");
-        } else {
-            $("#opponent_phase_lowest_sv").css("color", "red");
-        }
-
-        for (i of Array(4).keys()) {
-            if (encounter["moves"][i]) {
-                $("#opponent_move_" + i).text(
-                    encounter["enrichedMoves"][i]["name"]
-                );
-                $("#opponent_move_pp_" + i).text(
-                    encounter["pp"][i] + "/" + encounter["enrichedMoves"][i]["pp"]
-                );
-            } else {
-                $("#opponent_move_" + i).text("-");
-                $("#opponent_move_pp_" + i).text("-");
-            }
-        }
-    });
+    }
 }
 
 function encounter_log() {
+
+    // Retrieve the last 10 encounters and append data into the HTML
+
+    // Call on API for the encounter log
     $.ajax({
         method: "GET",
         url: host + "/encounter_log",
@@ -251,11 +252,18 @@ function encounter_log() {
 
         dataType: "json",
         format: "json",
-        timeout: 2500,
+        timeout: 10000,
     }).done(function(encounter_log) {
+        
+        // Host tr to hold HTML
         var tr = "";
 
-        reverse_encounter_log = encounter_log.reverse();
+        // Reverse the log to show last encounter first
+        reverse_encounter_log = encounter_log.reverse();  
+
+        // Set the global variable for encounter so encounter function
+        // can pick it up
+        window.encounter = reverse_encounter_log[0]["pokemon"];
         
         for (var i = 0; i < 11; i++) {
             if (reverse_encounter_log[i]["pokemon"]) {
@@ -265,8 +273,7 @@ function encounter_log() {
                     
                 } else {
                     sprite_dir = "";
-                    sv_colour = "red";
-                    
+                    sv_colour = "red";   
                 }
 
                 tr +=
@@ -284,8 +291,16 @@ function encounter_log() {
                     "</td></tr></p>";
             }
             document.getElementById("encounter_log").innerHTML = tr;
-        }      
+        }
+        
+        // Fill in encounter data with the last mon
+        // encounter(reverse_encounter_log[0]["pokemon"]);
+        
     });
+}
+
+function api_call(tail) {
+
 }
 
 function shiny_log() {
@@ -380,6 +395,21 @@ function stats() {
     });
 }
 
+
+function emulator(){
+    // emulator data pull from API
+    $.ajax({
+        method: "GET",
+        url: host + "/emulator",
+        crossDomain: true,
+        dataType: "json",
+        format: "json",
+        timeout: 2500,
+    }).done(function(emulator) {
+    
+    });
+}
+
 window.setInterval(function() {
     shiny_log();
 }, 2500);
@@ -389,8 +419,8 @@ window.setInterval(function() {
 }, 2500);
 
 window.setInterval(function() {
-    encounter();
-}, 1000);
+    current_encounter();
+}, 250);
 
 window.setInterval(function() {
     trainer();
@@ -406,6 +436,6 @@ window.setInterval(function() {
 
 shiny_log();
 encounter_log();
+current_encounter();
 trainer();
-encounter();
 items();

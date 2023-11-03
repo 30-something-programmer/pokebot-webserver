@@ -5,11 +5,11 @@ from requests.exceptions import HTTPError
 import json
 import logging
 import flask
-from flask import Flask, abort, jsonify, make_response, url_for, redirect, request
+from flask import Flask, abort, jsonify, url_for, redirect, request
 from flask_cors import CORS
 from modules.files import ReadFile
 from modules.catchBlockList import GetBlockList, BlockListManagement
-from threading import Thread
+
 #import webview
 
 
@@ -58,7 +58,6 @@ class API():
     def getStats(self):
         return self.__get("getStats","/stats")
     
-    
 pokedexList = json.loads(ReadFile("./modules/data/pokedex.json"))
 
 api = API("http://localhost",8888)
@@ -88,27 +87,6 @@ def httpServer(api : API):
         def DashboardDebug():
             return flask.render_template("debug.html")
 
-        @server.route("/trainer", methods=["GET"])
-        def Trainer():
-            trainer = api.getTrainer()
-            if trainer:
-                return trainer
-            abort(503)
-
-        @server.route("/items", methods=["GET"])
-        def Items():
-            bag = api.getItems()
-            if bag:
-                return jsonify(bag)
-            abort(503)
-
-        @server.route("/party", methods=["GET"])
-        def Party():
-            party = api.getParty()
-            if party:
-                return jsonify(party)
-            abort(503)
-
         @server.route("/encounter", methods=["GET"])
         def Encounter():
             encounter_logs = api.getEncounterLog()
@@ -122,25 +100,6 @@ def httpServer(api : API):
                     abort(503)
             return encounter
                 
-        @server.route("/encounter_rate", methods=["GET"])
-        def EncounterRate():
-            try:
-                return jsonify({"encounter_rate": api.getEncounterRate()})
-            except:
-                return jsonify({"encounter_rate": "-"})
-            abort(503)
-
-        @server.route("/stats", methods=["GET"])
-        def Stats():
-            stats = api.getStats()
-            if stats:
-                return jsonify(stats)
-            abort(503)
-
-        @server.route("/encounter_log", methods=["GET"])
-        def EncounterLog():
-            return api.getEncounterLog()
-
         @server.route("/shiny_log", methods=["GET"])
         def ShinyLog():
             shiny_log = api.getShinyLog()
