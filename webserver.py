@@ -4,7 +4,6 @@ import flask
 from flask import Flask, abort, jsonify, url_for, redirect, request
 from flask_cors import CORS
 from modules.files import ReadFile
-from modules.catchBlockList import GetBlockList, BlockListManagement
 
 log = logging.getLogger("werkzeug")
 log.setLevel(logging.INFO)
@@ -33,6 +32,10 @@ def httpServer():
         @server.route("/dashboard/debug", methods=["GET"])
         def DashboardDebug():
             return flask.render_template("debug.html")
+        
+        @server.route("/pokedex", methods=["GET"])
+        def pokedex():
+            return json.loads(ReadFile("./modules/data/pokedex.json"))
 
         server.run(debug=True, threaded=True, host="localhost", port=8889)
     except Exception as e:

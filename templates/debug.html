@@ -24,7 +24,8 @@
     </script>
     <script src="{{ url_for('static',filename='js/jsontree.js') }}">
     </script>
-    <script src="{{ url_for('static',filename='js/debug.js') }}">
+    <!-- Defer script so HTML Ids can be parsed after script load-->
+    <script src="{{ url_for('static',filename='js/debug.js') }}" defer>
     </script>
 
 </head>
@@ -58,7 +59,7 @@
                 <!-- Container-fluid -->
                 <div class="container-fluid">
                     <p style="text-align: center;">Page generated at <span id="datetime"></span>.
-                        <button class="btn btn-action mr-5 ml-10" type="button" onclick="window.location.reload();" aria-label="Refresh page">
+                        <button class="btn btn-action mr-5 ml-10" type="button" onclick="debug_pokebot();" aria-label="Update json fields">
                             <i class="fa fa-refresh" aria-hidden="true"></i>
                         </button>
                     </p>
@@ -84,19 +85,13 @@
                         <div class="col-lg-4">
                             <div class="card h-lg-350 overflow-y-lg-auto p-5 m-10">
                                 <h2 class="card-title text-center">Emulator</h2>
-                                <pre id="emu"></pre>
+                                <pre id="emulator"></pre>
                             </div>
                         </div>
                         <div class="col-lg-4">
                             <div class="card h-lg-350 overflow-y-lg-auto p-5 m-10">
                                 <h2 class="card-title text-center">Stats</h2>
                                 <pre id="stats"></pre>
-                            </div>
-                        </div>
-                        <div class="col-lg-4">
-                            <div class="card h-lg-350 overflow-y-lg-auto p-5 m-10">
-                                <h2 class="card-title text-center">Screenshot</h2>
-                                <p><img style="margin: auto;" src="/screenshot.png">
                             </div>
                         </div>
                         <div class="col-lg-4">
@@ -115,6 +110,12 @@
                             <div class="card h-lg-350 overflow-y-lg-auto p-5 m-10">
                                 <h2 class="card-title text-center">Bag Log</h2>
                                 <pre id="bag_log"></pre>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="card h-lg-350 overflow-y-lg-auto p-5 m-10">
+                                <h2 class="card-title text-center">Encounter Rate</h2>
+                                <pre id="encounter_rate"></pre>
                             </div>
                         </div>
                     </div>

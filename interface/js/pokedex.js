@@ -1,18 +1,18 @@
-host = "http://localhost:8888";
+/*
+* Pokedex JS-----------------------------------------------------------------------------
+* 
+* Version: 0.1
+* Copyright, 30SomethingProgrammer
+* Licensed under MIT
+* -----------------------------------------------------------------------------
+* The above notice must be included in its entirety when this file is used.
+* This script is a modified version from https://github.com/40Cakes/pokebot-bizhawk
+*/
 
-var blocked = { block_list: [] };
-function getBlocked() {
-  $.ajax({
-    method: "GET",
-    url: host + "/blocked",
-  }).done(function (blocklist) {
-    blocked = blocklist;
-  });
-}
 function dexEntries() {
   $.ajax({
     method: "GET",
-    url: host + "/pokedex",
+    url: window.host2 + "/pokedex",
   }).done(function (dex) {
     var tableBody = document.querySelector("#pokedex");
 
@@ -131,12 +131,7 @@ function dexEntries() {
       catchPkmImg.classList.add("pokeball-sprite");
       catchPkmImg.setAttribute("pokemon-name", pokemon.name);
 
-      //check if pokemon is on the no-catch list, if so, disable the pokeball
-      if (blocked["block_list"].includes(pokemon.name)) {
-        catchPkmImg.src = noCatchImg;
-      } else if (!blocked["block_list"].includes(pokemon.name)) {
-        catchPkmImg.src = catchImg;
-      }
+      catchPkmImg.src = catchImg;
 
       catchPkmBtn.appendChild(catchPkmImg);
       catchPkmBtn.style.all = "unset";
@@ -180,7 +175,6 @@ function dexEntries() {
   });
 }
 
-getBlocked();
 dexEntries();
 
 //mess tbh, but it formats the encounter type nicer
@@ -277,25 +271,11 @@ window.setInterval(function () {
   stats();
 }, 2500);
 
-window.setInterval(function () {
-  $.ajax({
-    method: "GET",
-    url: host + "/blocked",
-  }).done(function (blocklist) {
-    blocked = blocklist;
-    checkBlocklist();
-  });
-}, 1000);
-
 function checkBlocklist() {
   var pokeballs = document.getElementsByClassName("pokeball-sprite");
   for (var i = 0; i < pokeballs.length; i++) {
     var pokemonName = pokeballs[i].getAttribute("pokemon-name");
-    if (blocked["block_list"].includes(pokemonName)) {
-      pokeballs[i].src = "/interface/sprites/items/Poké Ball-disabled.png";
-    } else {
-      pokeballs[i].src = "/interface/sprites/items/Poké Ball.png";
-    }
+    pokeballs[i].src = "/interface/sprites/items/Poké Ball.png";
   }
 }
 
