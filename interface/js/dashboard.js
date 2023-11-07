@@ -1,85 +1,87 @@
-host = "http://localhost:8888";
-host2 = "http://localhost:8889";
-window.encounter = null;    // Host the encounter as a global variable
-function trainer() {
-    $.ajax({
-        method: "GET",
-        url: host + "/trainer",
-        crossDomain: true,
-        dataType: "json",
-        format: "json",
-        timeout: 500,
-    }).done(function(trainer) {
-        $("#trainer_id").text(trainer["tid"]);
-        $("#trainer_secret").text(trainer["sid"]);
-        $("#trainer_map_bank_id").text(
-            trainer["map"][0] + ":" + trainer["map"][1]
-        );
-        $("#trainer_coords").text(
-            "X " + trainer["coords"][0] + ", Y " + trainer["coords"][1]
-        );
-        $("#trainer_state").text(trainer["facing"]);
-    });
+/*
+* -----------------------------------------------------------------------------
+* Dashboard JS 
+* Version: 0.1
+* Copyright, 30SomethingProgrammer
+* Licensed under MIT
+* -----------------------------------------------------------------------------
+* The above notice must be included in its entirety when this file is used.
+* This script is a modified version from https://github.com/40Cakes/pokebot-bizhawk
+*/
+
+// THIS SCRIPT USES FUNCTIONS.JS. ENSURE FUNCTIONS.JS IS CALLED FIRST
+
+function update_trainer_details() {
+    // Gets trainer details from the API then updates the relevant fields
+
+    api_call("trainer", 500);  // from functions.js - updates window.trainer
+
+    $("#trainer_id").text(window.trainer["tid"]);
+    $("#trainer_secret").text(window.trainer["sid"]);
+    $("#trainer_map_bank_id").text(
+        window.trainer["map"][0] + ":" + window.trainer["map"][1]
+    );
+    $("#trainer_coords").text(
+        "X " + window.trainer["coords"][0] + ", Y " + window.trainer["coords"][1]
+    );
+    $("#trainer_state").text(window.trainer["facing"]);
+
 }
 
-function items() {
-    $.ajax({
-        method: "GET",
-        url: host + "/items",
-        crossDomain: true,
-        dataType: "json",
-        format: "json",
-        timeout: 500,
-    }).done(function(items) {
-        let tr = ""
+function update_item_details() {
 
-        let wrapper = document.getElementById("items_log")
+    // Gets items from the API and updates the relevant fields
 
-        let condenseditems = []
-        Object.entries(items).forEach(([key, value]) => {
-            for (let j = 0; j < value.length; j++) {
-                if (value[j]["name"] == "None" || value[j]["name"] == "unknown") continue
+    api_call("items", 500)  // in functions.js
 
-                if (!condensedItems[key]) {
-                        condensedItems[key] = []
-                }
-                
-                if (condensedItem[key][value[j]["name"]]) {
-                    condensedItems[key][value[j]["name"]] += value[j]["quantity"]
-                }
-                else {
-                    condensedItems[key][value[j]["name"]] = value[j]["quantity"]
-                }
+    let tr = ""
+
+    let wrapper = document.getElementById("items_log")
+
+    let condenseditems = []
+    Object.entries(window.items).forEach(([key, value]) => {
+        for (let j = 0; j < value.length; j++) {
+            if (value[j]["name"] == "None" || value[j]["name"] == "unknown") continue
+
+            if (!condensedItems[key]) {
+                condensedItems[key] = []
             }
 
-        })
-        
-        Object.entries(condensedItems).forEach(([key, value]) => {
-            for (keyItems in value) {
-                    tr +=
-                        '<tr><td class="text-center"><img class="sprite32" src="/interface/sprites/Items/' +
-                        keyItems +
-                        '.png"></td><td class="text-center">' +
-                        keyItems +
-                        '</td></td><td class="text-center">' +
-                        key +
-                        '</td><td class="text-center">' +
-                        value[keyItems]   +
-                        "</td></tr>"           
+            if (condensedItem[key][value[j]["name"]]) {
+                condensedItems[key][value[j]["name"]] += value[j]["quantity"]
             }
-        })
+            else {
+                condensedItems[key][value[j]["name"]] = value[j]["quantity"]
+            }
+        }
 
-        wrapper.innerHTML = tr
     })
+
+    Object.entries(condensedItems).forEach(([key, value]) => {
+        for (keyItems in value) {
+            tr +=
+                '<tr><td class="text-center"><img class="sprite32" src="/interface/sprites/Items/' +
+                keyItems +
+                '.png"></td><td class="text-center">' +
+                keyItems +
+                '</td></td><td class="text-center">' +
+                key +
+                '</td><td class="text-center">' +
+                value[keyItems] +
+                "</td></tr>"
+        }
+    })
+
+    wrapper.innerHTML = tr
+
 }
 
-function get_type_image(type_str) {
-    return `<img src=\"/interface/sprites/types/${type_str}.png\">`;
-}
+function update_current_encounter() {
 
-function current_encounter() {
-    
-    // Update the Current encounter details
+    // Updates the current encounter deails
+
+    // NOTE - window.encounter is updated every time get_encounter_log is called from functions.js
+
     $(".opponent_name").text(window.encounter["name"]);
     $("#health-bar-fill").css(
         "width",
@@ -90,7 +92,7 @@ function current_encounter() {
         $("#opponent_name").css("color", "gold");
         $("#opponent_shiny").text("Yes!");
         // If the pokemon hasn't changed, don't redraw the gif
-        if ($("#opponent_personality").text() != window.encounter["pid"]){
+        if ($("#opponent_personality").text() != window.encounter["pid"]) {
             $("#opponent_sprite").attr(
                 "src",
                 "https://img.pokemondb.net/sprites/black-white/anim/shiny/" + window.encounter["name"].toLowerCase() + ".gif"
@@ -102,7 +104,7 @@ function current_encounter() {
         $("#opponent_shiny").text("No");
 
         // If the pokemon hasn't changed, don't redraw the gif
-        if ($("#opponent_personality").text() != window.encounter["pid"]){
+        if ($("#opponent_personality").text() != window.encounter["pid"]) {
             $("#opponent_sprite").attr(
                 "src",
                 "https://img.pokemondb.net/sprites/black-white/anim/normal/" + window.encounter["name"].toLowerCase() + ".gif"
@@ -112,7 +114,7 @@ function current_encounter() {
         $("#opponent_shiny_value").css("color", "red");
         $("#opponent_name").css("color", "");
     }
-    
+
     $("#opponent_shiny_value").text(
         window.encounter["shinyValue"].toLocaleString()
     );
@@ -188,7 +190,7 @@ function current_encounter() {
     window.encounter["type"] = window.encounter["type"].filter((e) => e !== "Fairy");
     var types = "";
     types += get_type_image(window.encounter["type"][0])
-    if (window.encounter["type"][1] != ""){
+    if (window.encounter["type"][1] != "") {
         types += get_type_image(window.encounter["type"][1])
     }
 
@@ -203,7 +205,7 @@ function current_encounter() {
     $("#opponent_encounters").text(
         window.encounter["global_stats"]["encounters"].toLocaleString()
     );
-    
+
     window.encounter["global_stats"]["shiny_encounters"] = (window.encounter["global_stats"]["shiny_encounters"] === undefined) ? 0 : window.encounter["global_stats"]["shiny_encounters"];
     $("#opponent_shiny_encounters").text(
         window.encounter["global_stats"]["shiny_encounters"].toLocaleString()
@@ -213,7 +215,7 @@ function current_encounter() {
     $("#opponent_shiny_average").text(
         window.encounter["global_stats"]["shiny_average"]
     );
-    
+
     window.encounter["global_stats"]["phase_lowest_sv"] = (window.encounter["global_stats"]["phase_lowest_sv"] === undefined) ? 65535 : window.encounter["global_stats"]["phase_lowest_sv"];
     $("#opponent_phase_lowest_sv").text(
         window.encounter["global_stats"]["phase_lowest_sv"].toLocaleString()
@@ -240,202 +242,174 @@ function current_encounter() {
     }
 }
 
-function encounter_log() {
+function update_encounter_log() {
 
-    // Retrieve the last 10 encounters and append data into the HTML
+    // Retrieves latest encounter log from the API and updates all the relevant details
 
     // Call on API for the encounter log
-    $.ajax({
-        method: "GET",
-        url: host + "/encounter_log",
-        crossDomain: true,
+    api_call("encounter_log", 500);  // from functions.js - updates window.trainer
 
-        dataType: "json",
-        format: "json",
-        timeout: 10000,
-    }).done(function(encounter_log) {
-        
-        // Host tr to hold HTML
-        var tr = "";
+    window.encounter_log.reverse()  // Reverse the list so it shows correctly
 
-        // Reverse the log to show last encounter first
-        reverse_encounter_log = encounter_log.reverse();  
+    window.encounter = window.encounter_log[0]["pokemon"]   // Update with the most recent encoutner
+    // Host tr to hold HTML
+    var tr = "";
 
-        // Set the global variable for encounter so encounter function
-        // can pick it up
-        window.encounter = reverse_encounter_log[0]["pokemon"];
-        
-        for (var i = 0; i < 11; i++) {
-            if (reverse_encounter_log[i]["pokemon"]) {
-                if (reverse_encounter_log[i]["pokemon"]["shiny"]) {
-                    sprite_dir = "shiny/";
-                    sv_colour = "gold";
-                    
-                } else {
-                    sprite_dir = "";
-                    sv_colour = "red";   
-                }
+    // Loop through all pokemon, append date into HTML table
+    for (var i = 0; i < 11; i++) {
+        if (window.encounter_log[i]["pokemon"]) {
+            if (window.encounter_log[i]["pokemon"]["shiny"]) {
+                sprite_dir = "shiny/";
+                sv_colour = "gold";
 
-                tr +=
-                    '<p id="encounter_log"><tr><td><img class="sprite32" src="/interface/sprites/pokemon/' +
-                    sprite_dir +
-                    reverse_encounter_log[i]["pokemon"]["name"] + '.png"></td><td class="text-center">' +
-                    reverse_encounter_log[i]["pokemon"]["name"] + '</td><td class="text-center">' +
-                    reverse_encounter_log[i]["pokemon"]["level"] + '</td><td class="text-center">' +
-                    reverse_encounter_log[i]["pokemon"]["nature"] + '</td><td class="text-center"><img title="' +
-                    reverse_encounter_log[i]["pokemon"]["item"]["name"] + '" class="sprite16" src="/interface/sprites/items/' +
-                    reverse_encounter_log[i]["pokemon"]["item"]["name"] + '.png"></td><td class="text-center"><code class="code">' +
-                    reverse_encounter_log[i]["pokemon"]["pid"] + '</code></td><td class="text-center" style="color:' +
-                    sv_colour +';">' +
-                    reverse_encounter_log[i]["pokemon"]["shinyValue"].toLocaleString() +
-                    "</td></tr></p>";
+            } else {
+                sprite_dir = "";
+                sv_colour = "red";
             }
-            document.getElementById("encounter_log").innerHTML = tr;
+
+            tr +=
+                '<tr><td><img class="sprite32" src="/interface/sprites/pokemon/' +
+                sprite_dir +
+                window.encounter_log[i]["pokemon"]["name"] + '.png"></td><td class="text-center">' +
+                window.encounter_log[i]["pokemon"]["name"] + '</td><td class="text-center">' +
+                window.encounter_log[i]["pokemon"]["level"] + '</td><td class="text-center">' +
+                window.encounter_log[i]["pokemon"]["nature"] + '</td><td class="text-center"><img title="' +
+                window.encounter_log[i]["pokemon"]["item"]["name"] + '" class="sprite16" src="/interface/sprites/items/' +
+                window.encounter_log[i]["pokemon"]["item"]["name"] + '.png"></td><td class="text-center"><code class="code">' +
+                window.encounter_log[i]["pokemon"]["pid"] + '</code></td><td class="text-center" style="color:' +
+                sv_colour + ';">' +
+                window.encounter_log[i]["pokemon"]["shinyValue"].toLocaleString() +
+                "</td></tr>";
         }
-        
-        // Fill in encounter data with the last mon
-        // encounter(reverse_encounter_log[0]["pokemon"]);
-        
-    });
+        document.getElementById("encounter_log").innerHTML = tr;
+    }
 }
 
-function api_call(tail) {
+function update_shiny_log() {
+    // Retrieves the shiny log from the API and updates all the relevant details
 
-}
+    api_call("shiny_log", 500);     // in functions.js
 
-function shiny_log() {
-    $.ajax({
-        method: "GET",
-        url: host + "/shiny_log",
-        crossDomain: true,
-        dataType: "json",
-        format: "json",
-        timeout: 2500,
-    }).done(function(shiny_log) {
-        var tr = "";
-        var wrapper = document.getElementById("shiny_log");
+    window.shiny_log.reverse();     // Reverse the shiny log so it shows in correct order
 
-        reverse_shiny_log = shiny_log["shiny_log"].reverse();
+    var tr = "";
+    var wrapper = document.getElementById("shiny_log");
 
-        for (var i = 0; i < 25; i++) {
-            if (reverse_shiny_log[i]) {
-                if (reverse_shiny_log[i]["pokemon"]["shiny"]) {
-                    sprite_dir = "shiny/";
-                    sv_colour = "gold";
-                } else {
-                    sprite_dir = "";
-                    sv_colour = "red";
-                }
-                tr +=
-                    '<tr><td><img class="sprite32" src="/interface/sprites/pokemon/' +
-                    sprite_dir +
-                    reverse_shiny_log[i]["pokemon"]["name"] +
-                    '.png"></td><td class="text-center">' +
-                    reverse_shiny_log[i]["pokemon"]["name"] +
-                    '</td><td class="text-center">' +
-                    reverse_shiny_log[i]["pokemon"]["level"] +
-                    '</td><td class="text-center">' +
-                    reverse_shiny_log[i]["pokemon"]["nature"] +
-                    '</td><td class="text-center"><img title="' +
-                    reverse_shiny_log[i]["pokemon"]["itemName"] +
-                    '" class="sprite16" src="/interface/sprites/items/' +
-                    reverse_shiny_log[i]["pokemon"]["itemName"] +
-                    '.png"></td><td class="text-center"><code class="code">' +
-                    reverse_shiny_log[i]["pokemon"]["personality"] +
-                    '</code></td><td class="text-center" style="color:' +
-                    sv_colour +
-                    ';">' +
-                    reverse_shiny_log[i]["pokemon"]["shinyValue"].toLocaleString() +
-                    "</td></tr>";
+    for (var i = 0; i < 25; i++) {
+        if (window.shiny_log[i]) {
+            if (window.shiny_log[i]["pokemon"]["shiny"]) {
+                sprite_dir = "shiny/";
+                sv_colour = "gold";
+            } else {
+                sprite_dir = "";
+                sv_colour = "red";
             }
+            tr +=
+                '<tr><td><img class="sprite32" src="/interface/sprites/pokemon/' +
+                sprite_dir +
+                window.shiny_log[i]["pokemon"]["name"] +
+                '.png"></td><td class="text-center">' +
+                window.shiny_log[i]["pokemon"]["name"] +
+                '</td><td class="text-center">' +
+                window.shiny_log[i]["pokemon"]["level"] +
+                '</td><td class="text-center">' +
+                window.shiny_log[i]["pokemon"]["nature"] +
+                '</td><td class="text-center"><img title="' +
+                window.shiny_log[i]["pokemon"]["itemName"] +
+                '" class="sprite16" src="/interface/sprites/items/' +
+                window.shiny_log[i]["pokemon"]["itemName"] +
+                '.png"></td><td class="text-center"><code class="code">' +
+                window.shiny_log[i]["pokemon"]["personality"] +
+                '</code></td><td class="text-center" style="color:' +
+                sv_colour +
+                ';">' +
+                window.shiny_log[i]["pokemon"]["shinyValue"].toLocaleString() +
+                "</td></tr>";
         }
+    }
 
-        wrapper.innerHTML = tr;
-    });
+    wrapper.innerHTML = tr;
 }
 
-function stats() {
-    $.ajax({
-        method: "GET",
-        url: host + "/stats",
-        crossDomain: true,
-        dataType: "json",
-        format: "json",
-        timeout: 2500,
-    }).done(function(stats) {
-        stats["totals"]["phase_encounters"] = (stats["totals"]["phase_encounters"] === undefined) ? 0 : stats["totals"]["phase_encounters"];
-        $("#stats_phase_encounters").text(
-            stats["totals"]["phase_encounters"].toLocaleString()
-        );
+function update_stats() {
+    // Retrieves stats from the API and updates all the relevant details
 
-        stats["totals"]["shiny_encounters"] = (stats["totals"]["shiny_encounters"] === undefined) ? 0 : stats["totals"]["shiny_encounters"];
-        $("#stats_shiny_encounters").text(
-            stats["totals"]["shiny_encounters"].toLocaleString()
-        );
+    api_call("stats", 500);     // in functions.js
 
-        stats["totals"]["shiny_encounters"] = (stats["totals"]["shiny_encounters"] === undefined) ? 0 : stats["totals"]["shiny_encounters"];
-        $("#stats_total_encounters").text(
-            stats["totals"]["encounters"].toLocaleString()
-        );
+    window.stats["totals"]["phase_encounters"] = (window.stats["totals"]["phase_encounters"] === undefined) ? 0 : window.stats["totals"]["phase_encounters"];
+    $("#stats_phase_encounters").text(
+        window.stats["totals"]["phase_encounters"].toLocaleString()
+    );
 
-        stats["totals"]["shiny_average"] = (stats["totals"]["shiny_average"] === undefined) ? "-" : stats["totals"]["shiny_average"];
-        $("#stats_shiny_average").text(
-            stats["totals"]["shiny_average"]
-        );
+    window.stats["totals"]["shiny_encounters"] = (window.stats["totals"]["shiny_encounters"] === undefined) ? 0 : window.stats["totals"]["shiny_encounters"];
+    $("#stats_shiny_encounters").text(
+        window.stats["totals"]["shiny_encounters"].toLocaleString()
+    );
 
-        stats["totals"]["shortest_phase_encounters"] = (stats["totals"]["shortest_phase_encounters"] === undefined) ? 0 : stats["totals"]["shortest_phase_encounters"];
-        $("#stats_shortest_phase").text(
-            stats["totals"]["shortest_phase_encounters"].toLocaleString()
-        );
+    window.stats["totals"]["shiny_encounters"] = (window.stats["totals"]["shiny_encounters"] === undefined) ? 0 : window.stats["totals"]["shiny_encounters"];
+    $("#stats_total_encounters").text(
+        window.stats["totals"]["encounters"].toLocaleString()
+    );
 
-        stats["totals"]["longest_phase_encounters"] = (stats["totals"]["longest_phase_encounters"] === undefined) ? 0 : stats["totals"]["longest_phase_encounters"];
-        $("#stats_longest_phase").text(
-            stats["totals"]["longest_phase_encounters"].toLocaleString()
-        );
-    });
+    window.stats["totals"]["shiny_average"] = (window.stats["totals"]["shiny_average"] === undefined) ? "-" : window.stats["totals"]["shiny_average"];
+    $("#stats_shiny_average").text(
+        window.stats["totals"]["shiny_average"]
+    );
+
+    window.stats["totals"]["shortest_phase_encounters"] = (window.stats["totals"]["shortest_phase_encounters"] === undefined) ? 0 : window.stats["totals"]["shortest_phase_encounters"];
+    $("#stats_shortest_phase").text(
+        window.stats["totals"]["shortest_phase_encounters"].toLocaleString()
+    );
+
+    window.stats["totals"]["longest_phase_encounters"] = (window.stats["totals"]["longest_phase_encounters"] === undefined) ? 0 : window.stats["totals"]["longest_phase_encounters"];
+    $("#stats_longest_phase").text(
+        window.stats["totals"]["longest_phase_encounters"].toLocaleString()
+    );
 }
 
+function update_emulator() {
+    // Retrieves emulator stuffs from the API and updates all the relevant details
 
-function emulator(){
-    // emulator data pull from API
-    $.ajax({
-        method: "GET",
-        url: host + "/emulator",
-        crossDomain: true,
-        dataType: "json",
-        format: "json",
-        timeout: 2500,
-    }).done(function(emulator) {
-    
-    });
+    emu = get_emulator();   // in function.js
+
 }
 
-window.setInterval(function() {
-    shiny_log();
+// Run regular updates on each function
+
+window.setInterval(function () {
+    update_shiny_log();
 }, 2500);
 
-window.setInterval(function() {
-    encounter_log();
+window.setInterval(function () {
+    update_encounter_log();
 }, 2500);
 
-window.setInterval(function() {
-    current_encounter();
+window.setInterval(function () {
+    update_current_encounter();
 }, 250);
 
-window.setInterval(function() {
-    trainer();
+window.setInterval(function () {
+    update_trainer_details();
 }, 500);
 
-window.setInterval(function() {
-    stats();
+window.setInterval(function () {
+    update_stats();
 }, 1000);
 
-window.setInterval(function() {
-    items();
+window.setInterval(function () {
+    update_items();
 }, 2500);
 
-shiny_log();
-encounter_log();
-current_encounter();
-trainer();
-items();
+window.setInterval(function () {
+    update_emulator();
+}, 250);
+
+update_shiny_log();
+update_encounter_log();
+update_current_encounter();  // Make sure this is AFTER update_encounter_log
+update_trainer_details();
+update_items();
+update_emulator();
+update_stats;
+
+
