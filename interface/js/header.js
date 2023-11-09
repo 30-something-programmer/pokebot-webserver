@@ -12,27 +12,30 @@
 // Update stats within the header
 function header_stats() {
     
-    api_call("stats", 500)
-    api_call("emulator", 500)
+    update_stats();
+    update_emulator();
     $("#nav_stat_phase").text(
-        window.stats["totals"]["phase_encounters"].toLocaleString()
+        window.pokebot_stats["totals"]["phase_encounters"].toLocaleString()
     );
-    $("#nav_stat_total").text(window.stats["totals"]["encounters"].toLocaleString());
+    $("#nav_stat_total").text(window.pokebot_stats["totals"]["encounters"].toLocaleString());
 
-    window.stats["totals"]["shiny_encounters"] = (window.stats["totals"]["shiny_encounters"] === undefined) ? 0 : window.stats["totals"]["shiny_encounters"];
+    window.pokebot_stats["totals"]["shiny_encounters"] = (window.pokebot_stats["totals"]["shiny_encounters"] === undefined) ? 0 : window.pokebot_stats["totals"]["shiny_encounters"];
     $("#nav_stat_shiny").text(
-        window.stats["totals"]["shiny_encounters"].toLocaleString()
+        window.pokebot_stats["totals"]["shiny_encounters"].toLocaleString()
     );
-    $("#nav_emu").text(window.emulator["game"]["name"])
+    $("#nav_emu").text(window.pokebot_emulator["game"]["name"])
 
 }
 
 // encounter log for encounters/hr
 function header_encounter_rate() {
-    api_call("encounter_rate",100)
-    $("#encounters_hour").text(window.encounter_rate["encounter_rate"].toLocaleString() + "/h");
-
+    update_encounter_rate();
+    // Delay the update to afford the api call to finalise
+    setTimeout(function(){
+        $("#encounters_hour").text(window.pokebot_encounter_rate["encounter_rate"].toLocaleString() + "/h");
+    }, 1000);
 }
+
 
 // needed for encounters/hr calculation,
 // phase encounters/total encounters/shinys
@@ -40,6 +43,3 @@ window.setInterval(function() {
     header_encounter_rate();
     header_stats();
 }, 2500);
-
-header_encounter_rate();
-header_stats();

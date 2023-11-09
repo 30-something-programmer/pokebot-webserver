@@ -1,9 +1,7 @@
 import os
 import logging
 import fastjsonschema
-
 from ruamel.yaml import YAML
-
 from modules.files import ReadFile, WriteFile
 
 log = logging.getLogger(__name__)
@@ -18,49 +16,37 @@ block_schema = {
 }
 
 file = "stats\CatchBlockList.yml"
-BlockListValidator = fastjsonschema.compile(block_schema)  # Validate the config file to ensure user didn't do a dumb
 
 # Create block list file if doesn't exist
 if not os.path.exists(file):
     WriteFile(file, "block_list: []")
+        
+block_schema = {
+    "type": "object",
+    "properties": {
+        "block_list" : {"type": "array"}
+    }
+}
 
-def GetBlockList():
-    CatchBlockListYml = ReadFile(file)
-    if CatchBlockListYml:
-        CatchBlockList = yaml.load(CatchBlockListYml)
-        try:
-            if BlockListValidator(CatchBlockList):
-                return CatchBlockList
-            return None
-        except fastjsonschema.exceptions.JsonSchemaDefinitionException as e:
-            log.error(str(e))
-            log.error("Block list is invalid!")
-            return None
-
-def BlockListManagement(pkmName, catch):
+def blockListManagement(pkmName, catch):
     # read current block list into array
-    blockList = GetBlockList()
+    block_list = yaml.load(ReadFile(file))
     if catch:
-        for i,x in enumerate(blockList["block_list"]):
+        for i,x in enumerate(block_list["block_list"]):
             if pkmName == x:
                 # remove the selected mon from the array
-                blockList["block_list"].pop(i)
+                block_list["block_list"].pop(i)
         # write back to yml
         data = yaml.load(ReadFile(file))
-        data["block_list"] = blockList["block_list"]
+        data["block_list"] = block_list["block_list"]
         with open(file, "w") as fp:
             yaml.dump(data, fp)
     if not catch:
         # add pokemon to the block list
-        blockList["block_list"].append(pkmName)
+        block_list["block_list"].append(pkmName)
         
         # write back to yml
         data = yaml.load(ReadFile(file))
-        data["block_list"] = blockList["block_list"]
+        data["block_list"] = block_list["block_list"]
         with open(file, "w") as fp:
             yaml.dump(data, fp)
-
-
-    #add/remove as necessary depending on catch bool
-    #write back to file
-    

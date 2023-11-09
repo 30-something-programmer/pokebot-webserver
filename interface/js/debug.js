@@ -13,24 +13,22 @@
 
 // Call on all api endpoints and present them as json
 function debug_pokebot() {
-    api_call("encounter_log", 500); // From functions.js
-    api_call("trainer", 500); // From functions.js
-    api_call("shiny_log", 1000); // From functions.js
-    api_call("stats", 1000); // From functions.js
-    api_call("emulator", 1000); // From functions.js
-    api_call("party", 500); // From functions.js
-    api_call("items", 500); // From functions.js
-    api_call("encounter_rate", 500); // From functions.js
-    document.getElementById("encounter_log").innerHTML = JSONTree.create(window.encounter_log)
-    document.getElementById("bag_log").innerHTML = JSONTree.create(window.items)
-    document.getElementById("party").innerHTML = JSONTree.create(window.party)
-    document.getElementById("emulator").innerHTML = JSONTree.create(window.emulator)
-    document.getElementById("stats").innerHTML = JSONTree.create(window.stats)
-    document.getElementById("shiny_log").innerHTML = JSONTree.create(window.shiny_log)
-    document.getElementById("trainer").innerHTML = JSONTree.create(window.trainer)
-    window.encounter = window.encounter_log.reverse()[0]
-    document.getElementById("encounter").innerHTML = JSONTree.create(window.encounter)
-    document.getElementById("encounter_rate").innerHTML = JSONTree.create(window.encounter_rate)
+    update_all();
+    // Update all elements on the page - induce a delay to allow API call to complete via update_all()
+    setTimeout(function(){
+        document.getElementById("encounter_log").innerHTML = JSONTree.create(window.pokebot_encounter_log)
+        document.getElementById("bag_log").innerHTML = JSONTree.create(window.pokebot_items)
+        document.getElementById("party").innerHTML = JSONTree.create(window.pokebot_party)
+        document.getElementById("emulator").innerHTML = JSONTree.create(window.pokebot_emulator)
+        document.getElementById("stats").innerHTML = JSONTree.create(window.pokebot_stats)
+        document.getElementById("shiny_log").innerHTML = JSONTree.create(window.pokebot_shiny_log)
+        document.getElementById("trainer").innerHTML = JSONTree.create(window.pokebot_trainer)
+        document.getElementById("encounter").innerHTML = JSONTree.create(window.pokebot_encounter)
+        document.getElementById("encounter_rate").innerHTML = JSONTree.create(window.pokebot_encounter_rate)
+        document.getElementById("pokedex").innerHTML = JSONTree.create(window.pokebot_pokedex)
+        document.getElementById("blocked").innerHTML = JSONTree.create(window.pokebot_blocked)
+    }, 1500);
+    
     
 }
 

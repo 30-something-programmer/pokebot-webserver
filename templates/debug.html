@@ -16,17 +16,12 @@
     <link href="{{ url_for('static',filename='css/jsontree.css') }}" rel="stylesheet" />
     <!-- Font Awesome CSS -->
     <link href="{{ url_for('static',filename='font-awesome-4.7.0/css/font-awesome.min.css') }}" rel="stylesheet" />
-    <script src="{{ url_for('static',filename='js/jquery-3.2.1.min.js') }}">
-    </script>
-    <script src="{{ url_for('static',filename='js/moment.min.js') }}">
-    </script>
-    <script src="{{ url_for('static',filename='js/functions.js') }}">
-    </script>
-    <script src="{{ url_for('static',filename='js/jsontree.js') }}">
-    </script>
+    <script src="{{ url_for('static',filename='js/jquery-3.2.1.min.js') }}"></script>
+    <script src="{{ url_for('static',filename='js/moment.min.js') }}"></script>
+    <script src="{{ url_for('static',filename='js/functions.js') }}"></script>
+    <script src="{{ url_for('static',filename='js/jsontree.js') }}"></script>
     <!-- Defer script so HTML Ids can be parsed after script load-->
-    <script src="{{ url_for('static',filename='js/debug.js') }}" defer>
-    </script>
+    <script src="{{ url_for('static',filename='js/debug.js') }}" defer></script>
 
 </head>
 
@@ -116,6 +111,18 @@
                             <div class="card h-lg-350 overflow-y-lg-auto p-5 m-10">
                                 <h2 class="card-title text-center">Encounter Rate</h2>
                                 <pre id="encounter_rate"></pre>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="card h-lg-350 overflow-y-lg-auto p-5 m-10">
+                                <h2 class="card-title text-center">Pokedex</h2>
+                                <pre id="pokedex"></pre>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="card h-lg-350 overflow-y-lg-auto p-5 m-10">
+                                <h2 class="card-title text-center">Blocked Pokemon</h2>
+                                <pre id="blocked"></pre>
                             </div>
                         </div>
                     </div>
