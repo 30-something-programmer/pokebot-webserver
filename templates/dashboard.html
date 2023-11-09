@@ -8,21 +8,18 @@
     <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport" />
     <meta name="viewport" content="width=device-width" />
 
-    <title>PokeBot</title>
+    <title>PokeBot Webserver</title>
 
     <!-- Halfmoon CSS -->
     <link href="{{ url_for('static',filename='css/halfmoon-variables.min.css') }}" rel="stylesheet" />
     <link href="{{ url_for('static',filename='css/pokebot.css') }}" rel="stylesheet" />
     <!-- Font Awesome CSS -->
     <link href="{{ url_for('static',filename='font-awesome-4.7.0/css/font-awesome.min.css') }}" rel="stylesheet" />
-    <script src="{{ url_for('static',filename='js/jquery-3.2.1.min.js') }}">
-    </script>
-    <script src="{{ url_for('static',filename='js/moment.min.js') }}">
-    </script>
-    <script src="{{ url_for('static',filename='js/functions.js') }}">
-    </script>
-    <script src="{{ url_for('static',filename='js/dashboard.js') }}">
-    </script>
+    <script src="{{ url_for('static',filename='js/jquery-3.2.1.min.js') }}"></script>
+    <script src="{{ url_for('static',filename='js/moment.min.js') }}"></script>
+    <script src="{{ url_for('static',filename='js/functions.js') }}"></script>
+    <!-- Defer script so HTML Ids can be parsed after script load-->
+    <script src="{{ url_for('static',filename='js/dashboard.js') }}" Defer></script>
 </head>
 
 <body class="with-custom-webkit-scrollbars with-custom-css-scrollbars" data-dm-shortcut-enabled="true" data-sidebar-shortcut-enabled="true" data-set-preferred-theme-onload="true">

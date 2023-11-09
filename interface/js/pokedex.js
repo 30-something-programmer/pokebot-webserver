@@ -9,176 +9,187 @@
 * This script is a modified version from https://github.com/40Cakes/pokebot-bizhawk
 */
 
-function dexEntries() {
-  $.ajax({
-    method: "GET",
-    url: window.host2 + "/pokedex",
-  }).done(function (dex) {
-    var tableBody = document.querySelector("#pokedex");
 
-    //sort by dex number
-    var dexArray = dex.sort((a, b) => {
-      var numberA = a.pokedex_id;
-      var numberB = b.pokedex_id;
-      return numberA - numberB;
-    });
-    //loop through dex and output data
-    dexArray.forEach(function (pokemon) {
-      var row = document.createElement("tr");
+function add_dex_entries() {
+  var table_body = document.querySelector("#pokedex");
 
-      var dexIDCell = document.createElement("td");
-      dexIDCell.textContent = pokemon.pokedex_id; //dex number
+  // Sort by dex number
+  window.pokebot_pokedex.sort((a, b) => {
+    var numberA = a.pokedex_id;
+    var numberB = b.pokedex_id;
+    return numberA - numberB;
+  });
+  // Step into each dex entry, apply formatting to page to show each pokemon
+  window.pokebot_pokedex.forEach(function (pokemon) {
 
-      var imgCell = document.createElement("td");
-      var pkmImg = document.createElement("img");
-      imgCell.appendChild(pkmImg);
-      var cleanedPokemonName = pokemon.name
-        .replaceAll("'", "")
-        .replaceAll("♀", "_F")
-        .replaceAll("♂", "_M");
-      pkmImg.src = "/interface/sprites/pokemon/" + cleanedPokemonName + ".png";
-      row.setAttribute("data-pokemon", cleanedPokemonName);
-      let locationStrings = pokemon.encounters.map((i) => i.location);
-      row.setAttribute("data-locations", JSON.stringify(locationStrings));
-      pkmImg.width = "50";
+    // Clear up the pokemon name by replacing chars that don't work nicely with other markups
+    var cleaned_pokemon_name = pokemon.name
+    .replaceAll("'", "")
+    .replaceAll("♀", "_F")
+    .replaceAll("♂", "_M");
 
-      var nameCell = document.createElement("td");
-      nameCell.textContent = pokemon.name; //pokemon name
+    // Create a new row
+    var row = document.createElement("tr");
 
-      var locationCell = document.createElement("td");
-      if (pokemon.encounters.length > 0) {
-        var groupedEncounters = {};
+    // Cell - Pokedex number
+    var pokedex_id_cell = document.createElement("td");
+    pokedex_id_cell.textContent = pokemon.pokedex_id;
 
-        pokemon.encounters.forEach((encounter) => {
-          if (groupedEncounters[encounter.location]) {
-            // If encounter location exists in groupedEncounters, append encounter details
-            groupedEncounters[encounter.location].push(encounter);
-          } else {
-            // Otherwise, create a new entry in groupedEncounters
-            groupedEncounters[encounter.location] = [encounter];
-          }
+    // Cell - Pokemon image
+    var img_cell = document.createElement("td");
+    var pokemon_image = document.createElement("img");
+    img_cell.appendChild(pokemon_image);
+    pokemon_image.src = "/interface/sprites/pokemon/" + cleaned_pokemon_name + ".png";
+    pokemon_image.width = "50";
+    row.setAttribute("data-pokemon", cleaned_pokemon_name);
+
+    // Cell - Pokemon Name
+    var name_cell = document.createElement("td");
+    name_cell.textContent = pokemon.name;
+
+    // Cell - Pokemon capture locations
+    var location_cell = document.createElement("td");
+    let pokemon_location_strings = pokemon.encounters.map((i) => i.location);
+    row.setAttribute("data-locations", JSON.stringify(pokemon_location_strings));
+    if (pokemon.encounters.length > 0) {
+      var grouped_encounters = {};
+
+      pokemon.encounters.forEach((encounter) => {
+        if (grouped_encounters[encounter.location]) {
+
+          // If encounter location exists in grouped_encounters, append encounter details
+          grouped_encounters[encounter.location].push(encounter);
+        } else {
+
+          // Otherwise, create a new entry in grouped_encounters
+          grouped_encounters[encounter.location] = [encounter];
+        }
+      });
+
+      // Iterate over grouped encounters and create elements
+      Object.keys(grouped_encounters).forEach((location) => {
+        var encounters = grouped_encounters[location];
+        // Create pillbadge for each location it can be found on
+        var div = document.createElement("div");
+        var pill = document.createElement("span");
+        pill.classList.add("badge");
+        pill.classList.add("badge-pill");
+        pill.style.margin = "0.5em";
+        pill.textContent = location;
+        pill.setAttribute("data-toggle", "dropdown");
+
+        // Dropdown solution
+        div.classList.add("dropdown");
+        div.classList.add("with-arrow");
+        div.classList.add("toggle-on-hover");
+        var dropdown = document.createElement("div");
+        dropdown.classList.add("dropdown-menu");
+        dropdown.style.padding = "0";
+
+        // Create a table for the dropdown
+        const table = document.createElement("table");
+        const headerRow = document.createElement("tr");
+        const methodHeader = document.createElement("th");
+        methodHeader.textContent = "Method";
+        headerRow.appendChild(methodHeader);
+        const levelsHeader = document.createElement("th");
+        levelsHeader.textContent = "Levels";
+        headerRow.appendChild(levelsHeader);
+        const rateHeader = document.createElement("th");
+        rateHeader.textContent = "Rate";
+        headerRow.appendChild(rateHeader);
+        table.appendChild(headerRow);
+        table.style.marginLeft = "1em";
+        table.style.marginRight = "1em";
+        table.style.tableLayout = "auto";
+
+        // Set values for each encounter
+        encounters.forEach((encounter) => {
+          const valuesRow = document.createElement("tr");
+          const methodCell = document.createElement("td");
+          methodCell.style.whiteSpace = "nowrap";
+          methodCell.textContent = get_encounter_type(encounter.encounter_type);
+          const levelsCell = document.createElement("td");
+          levelsCell.style.whiteSpace = "nowrap";
+          levelsCell.textContent = encounter.levels;
+          const rateCell = document.createElement("td");
+          rateCell.style.whiteSpace = "nowrap";
+          rateCell.textContent = encounter.rate;
+          valuesRow.appendChild(methodCell);
+          valuesRow.appendChild(levelsCell);
+          valuesRow.appendChild(rateCell);
+          table.appendChild(valuesRow);
         });
 
-        // Iterate over grouped encounters and create elements
-        Object.keys(groupedEncounters).forEach((location) => {
-          var encounters = groupedEncounters[location];
-          // Create pillbadge for each location it can be found on
-          var div = document.createElement("div");
-          var pill = document.createElement("span");
-          pill.classList.add("badge");
-          pill.classList.add("badge-pill");
-          pill.style.margin = "0.5em";
-          pill.textContent = location;
-          pill.setAttribute("data-toggle", "dropdown");
+        dropdown.appendChild(table);
+        div.appendChild(pill);
+        div.appendChild(dropdown);
+        location_cell.appendChild(div);
+      });
+    } else {
+      location_cell.textContent = "";
+    }
 
-          // dropdown solution
-          div.classList.add("dropdown");
-          div.classList.add("with-arrow");
-          div.classList.add("toggle-on-hover");
-          var dropdown = document.createElement("div");
-          dropdown.classList.add("dropdown-menu");
-          dropdown.style.padding = "0";
+    // Cell - Pokemon capture status
+    var catch_pokemon = document.createElement("td");
+    var catch_pokemon_btn = document.createElement("button");
+    var catch_image = "/interface/sprites/items/Poké Ball.png";
+    var no_catch_image = "/interface/sprites/items/Poké Ball-disabled.png";
+    var catch_pokemon_image = document.createElement("img");
+    catch_pokemon_image.classList.add("pokeball-sprite");
+    catch_pokemon_image.setAttribute("pokemon-name", pokemon.name);
 
-          // Create a table for the dropdown
-          const table = document.createElement("table");
-          const headerRow = document.createElement("tr");
-          const methodHeader = document.createElement("th");
-          methodHeader.textContent = "Method";
-          headerRow.appendChild(methodHeader);
-          const levelsHeader = document.createElement("th");
-          levelsHeader.textContent = "Levels";
-          headerRow.appendChild(levelsHeader);
-          const rateHeader = document.createElement("th");
-          rateHeader.textContent = "Rate";
-          headerRow.appendChild(rateHeader);
-          table.appendChild(headerRow);
-          table.style.marginLeft = "1em";
-          table.style.marginRight = "1em";
-          table.style.tableLayout = "auto";
+    // Check if pokemon is on the no-catch list, if so, disable the pokeball
+    if (window.pokebot_blocked["block_list"].includes(pokemon.name)) {
+      catch_pokemon_image.src = no_catch_image;
+    } else if (!window.pokebot_blocked["block_list"].includes(pokemon.name)) {
+      catch_pokemon_image.src = catch_image;
+    }
 
-          // Set values for each encounter
-          encounters.forEach((encounter) => {
-            const valuesRow = document.createElement("tr");
-            const methodCell = document.createElement("td");
-            methodCell.style.whiteSpace = "nowrap";
-            methodCell.textContent = getMethod(encounter.encounter_type);
-            const levelsCell = document.createElement("td");
-            levelsCell.style.whiteSpace = "nowrap";
-            levelsCell.textContent = encounter.levels;
-            const rateCell = document.createElement("td");
-            rateCell.style.whiteSpace = "nowrap";
-            rateCell.textContent = encounter.rate;
-            valuesRow.appendChild(methodCell);
-            valuesRow.appendChild(levelsCell);
-            valuesRow.appendChild(rateCell);
-            table.appendChild(valuesRow);
-          });
+    catch_pokemon_btn.appendChild(catch_pokemon_image);
+    catch_pokemon_btn.style.all = "unset";
 
-          dropdown.appendChild(table);
-          div.appendChild(pill);
-          div.appendChild(dropdown);
-          locationCell.appendChild(div);
-        });
-      } else {
-        locationCell.textContent = "";
-      }
-
-      var catchPkm = document.createElement("td");
-      var catchPkmBtn = document.createElement("button");
-      var catchImg = "/interface/sprites/items/Poké Ball.png";
-      var noCatchImg = "/interface/sprites/items/Poké Ball-disabled.png";
-      var catchPkmImg = document.createElement("img");
-      catchPkmImg.classList.add("pokeball-sprite");
-      catchPkmImg.setAttribute("pokemon-name", pokemon.name);
-
-      catchPkmImg.src = catchImg;
-
-      catchPkmBtn.appendChild(catchPkmImg);
-      catchPkmBtn.style.all = "unset";
-
-      catchPkmBtn.onclick = function () {
-        //switch sprite depending on currently selected
-        catchPkmImg.src.includes("-disabled")
-          ? (catchPkmImg.src = catchImg)
-          : (catchPkmImg.src = noCatchImg);
-        //pass pkmname and current sprite to bot
-        var data = {
-          pokemonName: pokemon.name,
-          spriteLoaded: catchPkmImg.src,
-        };
-        //send post req to flask with the data
-        $.ajax({
-          method: "POST",
-          url: host + "/updateblocklist",
-          crossDomain: true,
-          contentType: "application/json",
-          format: "json",
-          data: JSON.stringify(data),
-          timeout: 500,
-        });
+    catch_pokemon_btn.onclick = function () {
+      // Switch sprite depending on currently selected
+      catch_pokemon_image.src.includes("-disabled")
+        ? (catch_pokemon_image.src = catch_image)
+        : (catch_pokemon_image.src = no_catch_image);
+      // Pass pkmname and current sprite to bot
+      var data = {
+        pokemonName: pokemon.name,
+        spriteLoaded: catch_pokemon_image.src,
       };
-      //if pokemon has encounters, show the button, otherwise don't
-      if (pokemon.encounters.length > 0) {
-        catchPkm.appendChild(catchPkmBtn);
-      }
 
-      // append the cells to the row
-      row.appendChild(dexIDCell);
-      row.appendChild(imgCell);
-      row.appendChild(nameCell);
-      row.appendChild(locationCell);
-      row.appendChild(catchPkm);
+      // Send post req to flask with the data
+      $.ajax({
+        method: "POST",
+        url: window.pokebot_host2 + "/updateblocklist",
+        crossDomain: true,
+        contentType: "application/json",
+        format: "json",
+        data: JSON.stringify(data),
+        timeout: 500,
+      });
+    };
+    //if pokemon has encounters, show the button, otherwise don't
+    if (pokemon.encounters.length > 0) {
+      catch_pokemon.appendChild(catch_pokemon_btn);
+    }
 
-      //add the row to the table #pokedex
-      tableBody.appendChild(row);
-    });
+    // append the cells to the row
+    row.appendChild(pokedex_id_cell);
+    row.appendChild(img_cell);
+    row.appendChild(name_cell);
+    row.appendChild(location_cell);
+    row.appendChild(catch_pokemon);
+
+    //add the row to the table #pokedex
+    table_body.appendChild(row);
   });
 }
 
-dexEntries();
-
-//mess tbh, but it formats the encounter type nicer
-function getMethod(method) {
+// Format the encounter types
+function get_encounter_type(method) {
   switch (method) {
     case "walking":
       return "Walking";
@@ -221,61 +232,16 @@ function getMethod(method) {
   }
 }
 
-// get info from stats
-function stats() {
-  $.ajax({
-    method: "GET",
-    url: host + "/stats",
-    crossDomain: true,
-    dataType: "json",
-    format: "json",
-    timeout: 2500,
-  }).done(function (stats) {
-    $("#nav_stat_phase").text(
-      stats["totals"]["phase_encounters"].toLocaleString()
-    );
-    $("#nav_stat_total").text(stats["totals"]["encounters"].toLocaleString());
-    $("#nav_stat_shiny").text(
-      stats["totals"]["shiny_encounters"].toLocaleString()
-    );
-  });
-}
-
-// encounter log for encounters/hr
-function encounter_log() {
-  $.ajax({
-    method: "GET",
-    url: host + "/encounter_log",
-    crossDomain: true,
-    dataType: "json",
-    format: "json",
-    timeout: 2500,
-  }).done(function (encounter_log) {
-    reverse_encounter_log = encounter_log["encounter_log"].reverse();
-    if (encounter_log["encounter_log"][50]) {
-      var range = moment(reverse_encounter_log[0]["time_encountered"])
-        .subtract(moment(reverse_encounter_log[10]["time_encountered"]))
-        .format("x");
-      $("#encounters_hour").text(
-        Math.round((60 / (range / 1000 / 60)) * 10).toLocaleString() + "/h"
-      );
-    } else {
-      $("#encounters_hour").text("-");
-    }
-  });
-}
-// needed for encounters/hr calculation,
-// phase encounters/total encounters/shinys
-window.setInterval(function () {
-  encounter_log();
-  stats();
-}, 2500);
-
-function checkBlocklist() {
+// Check the block list, show a gray pokeball if blocked
+function check_block_list() {
   var pokeballs = document.getElementsByClassName("pokeball-sprite");
   for (var i = 0; i < pokeballs.length; i++) {
     var pokemonName = pokeballs[i].getAttribute("pokemon-name");
-    pokeballs[i].src = "/interface/sprites/items/Poké Ball.png";
+    if (window.pokebot_blocked["block_list"].includes(pokemonName)) {
+      pokeballs[i].src = "/interface/sprites/items/Poké Ball-disabled.png";
+    } else {
+      pokeballs[i].src = "/interface/sprites/items/Poké Ball.png";
+    }
   }
 }
 
@@ -300,3 +266,17 @@ function filter() {
     }
   }
 }
+
+// Call on the api to update the relevant window.pokebot_# entries
+update_blocked();
+update_pokedex();
+
+// Update the entries on the page with a minor delay to afford api call to finalise
+setTimeout(function(){
+  add_dex_entries();
+}, 1000);
+
+// Set intervals to update the vars
+window.setInterval(function () {
+  check_block_list();
+}, 1000);
