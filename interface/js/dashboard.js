@@ -11,10 +11,8 @@
 
 // THIS SCRIPT USES FUNCTIONS.JS. ENSURE FUNCTIONS.JS IS CALLED FIRST
 
-function update_trainer_details() {
+function update_dash_trainer_elements() {
     // Gets trainer details from the API then updates the relevant fields
-
-    update_trainer();  // from functions.js - updates window.pokebot_trainer
 
     $("#trainer_id").text(window.pokebot_trainer["tid"]);
     $("#trainer_secret").text(window.pokebot_trainer["sid"]);
@@ -28,11 +26,9 @@ function update_trainer_details() {
 
 }
 
-function update_item_details() {
+function update_dash_item_elements() {
 
     // Gets items from the API and updates the relevant fields
-
-    update_items();  // in functions.js
 
     let tr = ""
 
@@ -76,11 +72,8 @@ function update_item_details() {
 
 }
 
-function update_current_encounter() {
-
+function update_dash_current_encounter_elements() {
     // Updates the current encounter deails
-
-    // NOTE - window.pokebot_encounter is updated every time get_encounter_log is called from functions.js
 
     $(".opponent_name").text(window.pokebot_encounter["name"]);
     $("#health-bar-fill").css(
@@ -88,6 +81,12 @@ function update_current_encounter() {
         (window.pokebot_encounter["stats"]["hp"] / window.pokebot_encounter["stats"]["maxHP"]) * 100 + "%"
     );
 
+    // Clear up the pokemon name by replacing chars that don't work nicely with other markups
+    var cleaned_pokemon_name = window.pokebot_encounter["name"]
+        .replaceAll("'", "")
+        .replaceAll("♀", "_F")
+        .replaceAll("♂", "_M");
+    
     if (window.pokebot_encounter["shiny"]) {
         $("#opponent_name").css("color", "gold");
         $("#opponent_shiny").text("Yes!");
@@ -194,34 +193,35 @@ function update_current_encounter() {
         types += get_type_image(window.pokebot_encounter["type"][1])
     }
 
+    // Type
     $("#opponent_type").html(types);
 
-    encounter["global_stats"]["phase_encounters"] = (window.pokebot_encounter["global_stats"]["phase_encounters"] === undefined) ? 0 : window.pokebot_encounter["global_stats"]["phase_encounters"];
+    // Global Stats - Phase Encounters
     $("#opponent_phase_encounters").text(
-        window.pokebot_encounter["global_stats"]["phase_encounters"].toLocaleString()
+        window.pokebot_stats["pokemon"][cleaned_pokemon_name]["phase_encounters"].toLocaleString()
     );
 
-    window.pokebot_encounter["global_stats"]["encounters"] = (window.pokebot_encounter["global_stats"]["encounters"] === undefined) ? 0 : window.pokebot_encounter["global_stats"]["encounters"];
+    window.pokebot_stats["pokemon"][cleaned_pokemon_name]["encounters"] = (window.pokebot_stats["pokemon"][cleaned_pokemon_name]["encounters"] === undefined) ? 0 : window.pokebot_stats["pokemon"][cleaned_pokemon_name]["encounters"];
     $("#opponent_encounters").text(
-        window.pokebot_encounter["global_stats"]["encounters"].toLocaleString()
+        window.pokebot_stats["pokemon"][cleaned_pokemon_name]["encounters"].toLocaleString()
     );
 
-    window.pokebot_encounter["global_stats"]["shiny_encounters"] = (window.pokebot_encounter["global_stats"]["shiny_encounters"] === undefined) ? 0 : window.pokebot_encounter["global_stats"]["shiny_encounters"];
+    window.pokebot_stats["pokemon"][cleaned_pokemon_name]["shiny_encounters"] = (window.pokebot_stats["pokemon"][cleaned_pokemon_name]["shiny_encounters"] === undefined) ? 0 : window.pokebot_stats["pokemon"][cleaned_pokemon_name]["shiny_encounters"];
     $("#opponent_shiny_encounters").text(
-        window.pokebot_encounter["global_stats"]["shiny_encounters"].toLocaleString()
+        window.pokebot_stats["pokemon"][cleaned_pokemon_name]["shiny_encounters"].toLocaleString()
     );
 
-    window.pokebot_encounter["global_stats"]["shiny_average"] = (window.pokebot_encounter["global_stats"]["shiny_average"] === undefined) ? "-" : window.pokebot_encounter["global_stats"]["shiny_average"];
+    window.pokebot_stats["pokemon"][cleaned_pokemon_name]["shiny_average"] = (window.pokebot_stats["pokemon"][cleaned_pokemon_name]["shiny_average"] === undefined) ? "-" : window.pokebot_stats["pokemon"][cleaned_pokemon_name]["shiny_average"];
     $("#opponent_shiny_average").text(
-        window.pokebot_encounter["global_stats"]["shiny_average"]
+        window.pokebot_stats["pokemon"][cleaned_pokemon_name]["shiny_average"]
     );
 
-    window.pokebot_encounter["global_stats"]["phase_lowest_sv"] = (window.pokebot_encounter["global_stats"]["phase_lowest_sv"] === undefined) ? 65535 : window.pokebot_encounter["global_stats"]["phase_lowest_sv"];
+    window.pokebot_stats["pokemon"][cleaned_pokemon_name]["phase_lowest_sv"] = (window.pokebot_stats["pokemon"][cleaned_pokemon_name]["phase_lowest_sv"] === undefined) ? 65535 : window.pokebot_stats["pokemon"][cleaned_pokemon_name]["phase_lowest_sv"];
     $("#opponent_phase_lowest_sv").text(
-        window.pokebot_encounter["global_stats"]["phase_lowest_sv"].toLocaleString()
+        window.pokebot_stats["pokemon"][cleaned_pokemon_name]["phase_lowest_sv"].toLocaleString()
     );
 
-    if (window.pokebot_encounter["global_stats"]["phase_lowest_sv"] < 8) {
+    if (window.pokebot_stats["pokemon"][cleaned_pokemon_name]["phase_lowest_sv"] < 8) {
         $("#opponent_phase_lowest_sv").css("color", "green");
     } else {
         $("#opponent_phase_lowest_sv").css("color", "red");
@@ -242,12 +242,9 @@ function update_current_encounter() {
     }
 }
 
-function update_encounter_log() {
-
+function update_dash_encounter_log_elements() {
     // Retrieves latest encounter log from the API and updates all the relevant details
-
-    update_encounter_log();  // from functions.js - updates window.pokebot_trainer
-
+    
     // Host tr to hold HTML
     var tr = "";
 
@@ -281,14 +278,10 @@ function update_encounter_log() {
     }
 }
 
-function update_shiny_log() {
+function update_dash_shiny_log_elements() {
     // Retrieves the shiny log from the API and updates all the relevant details
 
-    update_shiny_log();    // in functions.js
-
     var tr = "";
-    var wrapper = document.getElementById("shiny_log");
-
     for (var i = 0; i < 25; i++) {
         if (window.pokebot_shiny_log[i]) {
             if (window.pokebot_shiny_log[i]["pokemon"]["shiny"]) {
@@ -301,20 +294,13 @@ function update_shiny_log() {
             tr +=
                 '<tr><td><img class="sprite32" src="/interface/sprites/pokemon/' +
                 sprite_dir +
-                window.pokebot_shiny_log[i]["pokemon"]["name"] +
-                '.png"></td><td class="text-center">' +
-                window.pokebot_shiny_log[i]["pokemon"]["name"] +
-                '</td><td class="text-center">' +
-                window.pokebot_shiny_log[i]["pokemon"]["level"] +
-                '</td><td class="text-center">' +
-                window.pokebot_shiny_log[i]["pokemon"]["nature"] +
-                '</td><td class="text-center"><img title="' +
-                window.pokebot_shiny_log[i]["pokemon"]["itemName"] +
-                '" class="sprite16" src="/interface/sprites/items/' +
-                window.pokebot_shiny_log[i]["pokemon"]["itemName"] +
-                '.png"></td><td class="text-center"><code class="code">' +
-                window.pokebot_shiny_log[i]["pokemon"]["personality"] +
-                '</code></td><td class="text-center" style="color:' +
+                window.pokebot_shiny_log[i]["pokemon"]["name"] +'.png"></td><td class="text-center">' +
+                window.pokebot_shiny_log[i]["pokemon"]["name"] +'</td><td class="text-center">' +
+                window.pokebot_shiny_log[i]["pokemon"]["level"] +'</td><td class="text-center">' +
+                window.pokebot_shiny_log[i]["pokemon"]["nature"] +'</td><td class="text-center"><img title="' +
+                window.pokebot_shiny_log[i]["pokemon"]["item"]["name"] + '" class="sprite16" src="/interface/sprites/items/' +
+                window.pokebot_shiny_log[i]["pokemon"]["item"]["name"] + '.png"></td><td class="text-center"><code class="code">' +
+                window.pokebot_shiny_log[i]["pokemon"]["pid"] + '</code></td><td class="text-center" style="color:' +
                 sv_colour +
                 ';">' +
                 window.pokebot_shiny_log[i]["pokemon"]["shinyValue"].toLocaleString() +
@@ -322,13 +308,11 @@ function update_shiny_log() {
         }
     }
 
-    wrapper.innerHTML = tr;
+    document.getElementById("shiny_log").innerHTML = tr;
 }
 
-function update_stats() {
+function update_dash_stats_elements() {
     // Retrieves stats from the API and updates all the relevant details
-
-    update_stats();     // in functions.js
 
     window.pokebot_stats["totals"]["phase_encounters"] = (window.pokebot_stats["totals"]["phase_encounters"] === undefined) ? 0 : window.pokebot_stats["totals"]["phase_encounters"];
     $("#stats_phase_encounters").text(
@@ -361,49 +345,12 @@ function update_stats() {
     );
 }
 
-function update_emulator() {
-    // Retrieves emulator stuffs from the API and updates all the relevant details
-
-    emu = get_emulator();   // in function.js
-
-}
 
 // Run regular updates on each function
-
-window.setInterval(function () {
-    update_shiny_log();
-}, 2500);
-
-window.setInterval(function () {
-    update_encounter_log();
-}, 2500);
-
-window.setInterval(function () {
-    update_current_encounter();
-}, 250);
-
-window.setInterval(function () {
-    update_trainer_details();
-}, 500);
-
-window.setInterval(function () {
-    update_stats();
-}, 1000);
-
-window.setInterval(function () {
-    update_items();
-}, 2500);
-
-window.setInterval(function () {
-    update_emulator();
-}, 250);
-
-update_shiny_log();
-update_encounter_log();
-update_current_encounter();  // Make sure this is AFTER update_encounter_log
-update_trainer_details();
-update_items();
-update_emulator();
-update_stats;
-
-
+window.setInterval(function () { update_dash_shiny_log_elements(); }, 2500);
+window.setInterval(function () { update_dash_encounter_log_elements(); }, 2500);
+window.setInterval(function () { update_dash_current_encounter_elements(); }, 250);
+window.setInterval(function () { update_dash_trainer_elements(); }, 500);
+window.setInterval(function () { update_dash_item_elements(); }, 5000);
+window.setInterval(function () { update_dash_stats_elements(); }, 1000);
+window.setInterval(function () { api_call_dash_html(); }, 1200);    // Updates all global vars from API

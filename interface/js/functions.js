@@ -45,50 +45,52 @@ function api_call(call, time, host, reversed) {
         }
     });
 }
-function update_encounter() {
-    if (!!window.pokebot_encounter_log){
-        window.pokebot_encounter = window.pokebot_encounter_log[0]
-}}
-function update_pokedex() { 
+
+function api_call_pokedex() { 
     api_call("pokedex", 10000, window.pokebot_host2, false); 
 }
 
-function update_encounter_log() { 
-    api_call("encounter_log", 500, window.pokebot_host, true);
-    update_encounter(); 
+function api_call_encounter_log() { 
+    // Adds to global variable the encounter log and updates latest encounter
+    api_call("encounter_log", 1000, window.pokebot_host, true);
+
+    // Update the current encounter to be the last pokemon encountered - delayed to afford time to API to complete call
+    setTimeout(function(){ 
+        window.pokebot_encounter = window.pokebot_encounter_log[0]["pokemon"]
+    }, 1000);
 }
 
-function update_trainer() {
+function api_call_trainer() {
     api_call("trainer", 1000, window.pokebot_host, false); 
 }
-function update_shiny_log(){
+function api_call_shiny_log(){
     api_call("shiny_log", 1000, window.pokebot_host, true);
 }
 
-function update_stats() {
+function api_call_stats() {
     api_call("stats", 1000, window.pokebot_host, false); 
 }
 
-function update_emulator() {
+function api_call_emulator() {
     api_call("emulator", 1000, window.pokebot_host, false); 
 }
 
-function update_party() {
+function api_call_party() {
     api_call("party", 1000, window.pokebot_host, false); 
 }
 
-function update_items() {
+function api_call_items() {
     api_call("items", 1000, window.pokebot_host, false); 
 }
 
-function update_encounter_rate() {
+function api_call_encounter_rate() {
     api_call("encounter_rate", 500, window.pokebot_host, false);
 }
 
-function update_fps() {
+function api_call_fps() {
     api_call("fps", 500, window.pokebot_host, false);
 }
-function update_blocked() {
+function api_call_blocked() {
     api_call("blocked", 500, window.pokebot_host2, false);
 }
 // Provide function for attaining image type
@@ -96,17 +98,32 @@ function get_type_image(type_str) {
     return `<img src=\"/interface/sprites/types/${type_str}.png\">`;
 }
 
-function update_all(){
-    update_pokedex();
-    update_encounter_log();
-    update_encounter_rate();
-    update_blocked();
-    update_emulator();
-    update_fps();
-    update_items();
-    update_party();
-    update_shiny_log();
-    update_stats();
-    update_trainer();
+function api_call_dash_html(){
+    api_call_encounter_log();
+    api_call_items();
+    api_call_party();
+    api_call_shiny_log();
+    api_call_trainer();
 }
-update_all();
+
+function api_call_header_html(){
+    api_call_encounter_rate();
+    api_call_emulator();
+    api_call_fps();
+    api_call_stats();
+}
+
+function api_call_pokedex_html(){
+    api_call_pokedex();
+    api_call_blocked();
+}
+
+function api_call_debug_html(){
+    api_call_pokedex();
+    api_call_encounter_log();
+    api_call_blocked();
+    api_call_items();
+    api_call_party();
+    api_call_shiny_log();
+    api_call_trainer();
+}

@@ -12,24 +12,72 @@
 
 
 // Call on all api endpoints and present them as json
-function debug_pokebot() {
-    update_all();
-    // Update all elements on the page - induce a delay to allow API call to complete via update_all()
-    setTimeout(function(){
+function update_debug_elements() {
+
+    // Update elements only if:
+    // 1. The inner HTML is EMPTY
+    // 2. The window element is NOT EMPTY
+
+    // Encounter log
+    if ((document.getElementById("encounter_log").innerHTML  == "") && (window.pokebot_encounter_log != null)) {
         document.getElementById("encounter_log").innerHTML = JSONTree.create(window.pokebot_encounter_log)
+    }
+
+    // Items
+    if ((document.getElementById("bag_log").innerHTML  == "") && (window.pokebot_items != null)) {
         document.getElementById("bag_log").innerHTML = JSONTree.create(window.pokebot_items)
+    }
+    
+    // Party
+    if ((document.getElementById("party").innerHTML  == "") && (window.pokebot_party != null)) {
         document.getElementById("party").innerHTML = JSONTree.create(window.pokebot_party)
+    }
+    
+    // Emulator
+    if ((document.getElementById("emulator").innerHTML  == "") && (window.pokebot_emulator != null)) {
         document.getElementById("emulator").innerHTML = JSONTree.create(window.pokebot_emulator)
+    }
+    
+    // Stats
+    if ((document.getElementById("stats").innerHTML  == "") && (window.pokebot_stats != null)) {
         document.getElementById("stats").innerHTML = JSONTree.create(window.pokebot_stats)
+    }
+    
+    // Shiny Log
+    if ((document.getElementById("shiny_log").innerHTML  == "") && (window.pokebot_shiny_log != null)) {
         document.getElementById("shiny_log").innerHTML = JSONTree.create(window.pokebot_shiny_log)
+    }
+    
+    // Trainer
+    if ((document.getElementById("trainer").innerHTML  == "") && (window.pokebot_trainer != null)) {
         document.getElementById("trainer").innerHTML = JSONTree.create(window.pokebot_trainer)
+    }
+    
+    // Encounter
+    if ((document.getElementById("encounter").innerHTML  == "") && (window.pokebot_encounter != null)) {
         document.getElementById("encounter").innerHTML = JSONTree.create(window.pokebot_encounter)
+    }
+    
+    // Encounter Rate
+    if ((document.getElementById("encounter_rate").innerHTML  == "") && (window.pokebot_encounter_rate != null)) {
         document.getElementById("encounter_rate").innerHTML = JSONTree.create(window.pokebot_encounter_rate)
+    }
+    
+    // Pokedex
+    if ((document.getElementById("pokedex").innerHTML  == "") && (window.pokebot_pokedex != null)) {
         document.getElementById("pokedex").innerHTML = JSONTree.create(window.pokebot_pokedex)
+    }
+    
+    // Blocked
+    if ((document.getElementById("blocked").innerHTML  == "") && (window.pokebot_blocked != null)) {
         document.getElementById("blocked").innerHTML = JSONTree.create(window.pokebot_blocked)
-    }, 1500);
-    
-    
+    }
 }
 
-debug_pokebot();
+
+// Call on the API to update the elements
+api_call_debug_html();
+
+// Constantly update the elements to show once the var has been updated
+window.setInterval(function () { update_debug_elements(); }, 2000);
+

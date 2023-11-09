@@ -10,7 +10,7 @@
 */
 
 
-function add_dex_entries() {
+function update_pokedex_elements() {
   var table_body = document.querySelector("#pokedex");
 
   // Sort by dex number
@@ -246,7 +246,7 @@ function check_block_list() {
 }
 
 // logic for search bar filtering on route/pokemon name
-function filter() {
+function pokedex_filter() {
   let searchStr = document
     .getElementById("searchBar")
     .value.toLocaleLowerCase();
@@ -267,13 +267,12 @@ function filter() {
   }
 }
 
-// Call on the api to update the relevant window.pokebot_# entries
-update_blocked();
-update_pokedex();
+// Call on API and update the window variables
+api_call_pokedex_html(); 
 
 // Update the entries on the page with a minor delay to afford api call to finalise
 setTimeout(function(){
-  add_dex_entries();
+  update_pokedex_elements();
 }, 1000);
 
 // Set intervals to update the vars

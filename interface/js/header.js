@@ -10,10 +10,8 @@
 */
 
 // Update stats within the header
-function header_stats() {
-    
-    update_stats();
-    update_emulator();
+function update_header_elements() {
+
     $("#nav_stat_phase").text(
         window.pokebot_stats["totals"]["phase_encounters"].toLocaleString()
     );
@@ -25,21 +23,17 @@ function header_stats() {
     );
     $("#nav_emu").text(window.pokebot_emulator["game"]["name"])
 
+    
+    $("#encounters_hour").text(window.pokebot_encounter_rate["encounter_rate"].toLocaleString() + "/h");
+
 }
 
-// encounter log for encounters/hr
-function header_encounter_rate() {
-    update_encounter_rate();
+window.setInterval(function() {
+    
+    api_call_header_html();    // from function.js - Updates window.var from API
+    
     // Delay the update to afford the api call to finalise
     setTimeout(function(){
-        $("#encounters_hour").text(window.pokebot_encounter_rate["encounter_rate"].toLocaleString() + "/h");
+        update_header_elements();
     }, 1000);
-}
-
-
-// needed for encounters/hr calculation,
-// phase encounters/total encounters/shinys
-window.setInterval(function() {
-    header_encounter_rate();
-    header_stats();
 }, 2500);
