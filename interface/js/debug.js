@@ -19,64 +19,60 @@ function update_debug_elements() {
     // 2. The window element is NOT EMPTY
 
     // Encounter log
-    if ((document.getElementById("encounter_log").innerHTML  == "") && (window.pokebot_encounter_log != null)) {
+    if ((document.getElementById("encounter_log").innerHTML == "") && (window.pokebot_encounter_log != null)) {
         document.getElementById("encounter_log").innerHTML = JSONTree.create(window.pokebot_encounter_log)
     }
 
     // Items
-    if ((document.getElementById("bag_log").innerHTML  == "") && (window.pokebot_items != null)) {
+    if ((document.getElementById("bag_log").innerHTML == "") && (window.pokebot_items != null)) {
         document.getElementById("bag_log").innerHTML = JSONTree.create(window.pokebot_items)
     }
-    
+
     // Party
-    if ((document.getElementById("party").innerHTML  == "") && (window.pokebot_party != null)) {
+    if ((document.getElementById("party").innerHTML == "") && (window.pokebot_party != null)) {
         document.getElementById("party").innerHTML = JSONTree.create(window.pokebot_party)
     }
-    
+
     // Emulator
-    if ((document.getElementById("emulator").innerHTML  == "") && (window.pokebot_emulator != null)) {
+    if ((document.getElementById("emulator").innerHTML == "") && (window.pokebot_emulator != null)) {
         document.getElementById("emulator").innerHTML = JSONTree.create(window.pokebot_emulator)
     }
-    
+
     // Stats
-    if ((document.getElementById("stats").innerHTML  == "") && (window.pokebot_stats != null)) {
+    if ((document.getElementById("stats").innerHTML == "") && (window.pokebot_stats != null)) {
         document.getElementById("stats").innerHTML = JSONTree.create(window.pokebot_stats)
     }
-    
+
     // Shiny Log
-    if ((document.getElementById("shiny_log").innerHTML  == "") && (window.pokebot_shiny_log != null)) {
+    if ((document.getElementById("shiny_log").innerHTML == "") && (window.pokebot_shiny_log != null)) {
         document.getElementById("shiny_log").innerHTML = JSONTree.create(window.pokebot_shiny_log)
     }
-    
+
     // Trainer
-    if ((document.getElementById("trainer").innerHTML  == "") && (window.pokebot_trainer != null)) {
+    if ((document.getElementById("trainer").innerHTML == "") && (window.pokebot_trainer != null)) {
         document.getElementById("trainer").innerHTML = JSONTree.create(window.pokebot_trainer)
     }
-    
+
     // Encounter
-    if ((document.getElementById("encounter").innerHTML  == "") && (window.pokebot_encounter != null)) {
+    if ((document.getElementById("encounter").innerHTML == "") && (window.pokebot_encounter != null)) {
         document.getElementById("encounter").innerHTML = JSONTree.create(window.pokebot_encounter)
     }
-    
+
     // Encounter Rate
-    if ((document.getElementById("encounter_rate").innerHTML  == "") && (window.pokebot_encounter_rate != null)) {
+    if ((document.getElementById("encounter_rate").innerHTML == "") && (window.pokebot_encounter_rate != null)) {
         document.getElementById("encounter_rate").innerHTML = JSONTree.create(window.pokebot_encounter_rate)
     }
-    
+
     // Pokedex
-    if ((document.getElementById("pokedex").innerHTML  == "") && (window.pokebot_pokedex != null)) {
+    if ((document.getElementById("pokedex").innerHTML == "") && (window.pokebot_pokedex != null)) {
         document.getElementById("pokedex").innerHTML = JSONTree.create(window.pokebot_pokedex)
     }
-    
+
     // Blocked
-    if ((document.getElementById("blocked").innerHTML  == "") && (window.pokebot_blocked != null)) {
+    if ((document.getElementById("blocked").innerHTML == "") && (window.pokebot_blocked != null)) {
         document.getElementById("blocked").innerHTML = JSONTree.create(window.pokebot_blocked)
     }
 }
-
-
-// Call on the API to update the elements
-api_call_debug_html();
 
 // Constantly update the elements to show once the var has been updated
 window.setInterval(function () { update_debug_elements(); }, 2000);

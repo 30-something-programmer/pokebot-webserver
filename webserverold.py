@@ -1,15 +1,11 @@
 import json
 import logging
 import flask
-from threading import Thread
-
 from flask import Flask, url_for, redirect, request
 from flask_cors import CORS
 from ruamel.yaml import YAML
 from modules.files import ReadFile
-from modules.catch_block_list import blockListManagement
-from modules.runtime import getBasePath
-
+from modules.catchBlockList import blockListManagement
 
 log = logging.getLogger("werkzeug")
 log.setLevel(logging.INFO)
@@ -17,11 +13,10 @@ log.setLevel(logging.INFO)
 yaml = YAML()
 yaml.default_flow_style = False
 
-pokedexList = json.loads(ReadFile(f"{getBasePath()}/modules/data/pokedex.json"))
-blockedList = yaml.load(ReadFile(f"{getBasePath()}/data/catch_block_list.yml"))
+pokedexList = json.loads(ReadFile("./modules/data/pokedex.json"))
+blockedList = yaml.load(ReadFile("./stats/CatchBlockList.yml"))
 
-
-def httpServer():
+def webserver():
     """Run Flask server to make bot data available via HTTP GET"""
     
     try:
@@ -76,6 +71,6 @@ def httpServer():
     except Exception as e:
         log.debug(str(e))
 
-httpServer()
+webserver()
 
 # http://localhost:8888/dashboard"

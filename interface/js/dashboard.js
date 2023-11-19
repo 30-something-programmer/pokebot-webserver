@@ -86,7 +86,7 @@ function update_dash_current_encounter_elements() {
         .replaceAll("'", "")
         .replaceAll("♀", "_F")
         .replaceAll("♂", "_M");
-    
+
     if (window.pokebot_encounter["shiny"]) {
         $("#opponent_name").css("color", "gold");
         $("#opponent_shiny").text("Yes!");
@@ -244,7 +244,7 @@ function update_dash_current_encounter_elements() {
 
 function update_dash_encounter_log_elements() {
     // Retrieves latest encounter log from the API and updates all the relevant details
-    
+
     // Host tr to hold HTML
     var tr = "";
 
@@ -294,10 +294,10 @@ function update_dash_shiny_log_elements() {
             tr +=
                 '<tr><td><img class="sprite32" src="/interface/sprites/pokemon/' +
                 sprite_dir +
-                window.pokebot_shiny_log[i]["pokemon"]["name"] +'.png"></td><td class="text-center">' +
-                window.pokebot_shiny_log[i]["pokemon"]["name"] +'</td><td class="text-center">' +
-                window.pokebot_shiny_log[i]["pokemon"]["level"] +'</td><td class="text-center">' +
-                window.pokebot_shiny_log[i]["pokemon"]["nature"] +'</td><td class="text-center"><img title="' +
+                window.pokebot_shiny_log[i]["pokemon"]["name"] + '.png"></td><td class="text-center">' +
+                window.pokebot_shiny_log[i]["pokemon"]["name"] + '</td><td class="text-center">' +
+                window.pokebot_shiny_log[i]["pokemon"]["level"] + '</td><td class="text-center">' +
+                window.pokebot_shiny_log[i]["pokemon"]["nature"] + '</td><td class="text-center"><img title="' +
                 window.pokebot_shiny_log[i]["pokemon"]["item"]["name"] + '" class="sprite16" src="/interface/sprites/items/' +
                 window.pokebot_shiny_log[i]["pokemon"]["item"]["name"] + '.png"></td><td class="text-center"><code class="code">' +
                 window.pokebot_shiny_log[i]["pokemon"]["pid"] + '</code></td><td class="text-center" style="color:' +
@@ -346,11 +346,10 @@ function update_dash_stats_elements() {
 }
 
 
-// Run regular updates on each function
-window.setInterval(function () { update_dash_shiny_log_elements(); }, 2500);
-window.setInterval(function () { update_dash_encounter_log_elements(); }, 2500);
-window.setInterval(function () { update_dash_current_encounter_elements(); }, 250);
-window.setInterval(function () { update_dash_trainer_elements(); }, 500);
-window.setInterval(function () { update_dash_item_elements(); }, 5000);
-window.setInterval(function () { update_dash_stats_elements(); }, 1000);
-window.setInterval(function () { api_call_dash_html(); }, 1200);    // Updates all global vars from API
+// Call all functions
+update_dash_stats_elements();
+update_dash_shiny_log_elements();
+update_dash_encounter_log_elements();
+update_dash_current_encounter_elements();
+update_dash_item_elements();
+update_dash_trainer_elements();

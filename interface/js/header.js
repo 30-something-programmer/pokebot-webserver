@@ -23,17 +23,7 @@ function update_header_elements() {
     );
     $("#nav_emu").text(window.pokebot_emulator["game"]["name"])
 
-    
+
     $("#encounters_hour").text(window.pokebot_encounter_rate["encounter_rate"].toLocaleString() + "/h");
 
 }
-
-window.setInterval(function() {
-    
-    api_call_header_html();    // from function.js - Updates window.var from API
-    
-    // Delay the update to afford the api call to finalise
-    setTimeout(function(){
-        update_header_elements();
-    }, 1000);
-}, 2500);
